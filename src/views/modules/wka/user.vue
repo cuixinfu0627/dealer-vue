@@ -10,12 +10,10 @@
         </el-option>
       </el-select>
       <el-form-item>
-        <el-input v-model="dataForm.key" placeholder="参数名" clearable></el-input>
+        <el-input v-model="dataForm.key" placeholder="商户昵称" clearable></el-input>
       </el-form-item>
       <el-form-item>
         <el-button @click="getDataList()">查询</el-button>
-        <el-button v-if="isAuth('wka:user:save')" type="primary" @click="addOrUpdateHandle()">新增</el-button>
-        <el-button v-if="isAuth('wka:user:delete')" type="danger" @click="deleteHandle()" :disabled="dataListSelections.length <= 0">批量删除</el-button>
       </el-form-item>
     </el-form>
     <el-table
@@ -25,10 +23,15 @@
       @selection-change="selectionChangeHandle"
       style="width: 100%;">
       <el-table-column
-        type="selection"
+        prop="avatar"
         header-align="center"
         align="center"
-        width="50">
+        label="头像">
+        <template slot-scope="scope">
+          <div class="col-sm-3">
+            <el-image style="width: 100px; height: 50px" :src="scope.row.avatar" fit="contain"/>
+          </div>
+        </template>
       </el-table-column>
       <el-table-column
         prop="username"
@@ -55,14 +58,12 @@
         label="手机号">
       </el-table-column>
       <el-table-column
-        prop="avatar"
+        prop="tag"
         header-align="center"
         align="center"
-        label="头像">
+        label="用户标签">
         <template slot-scope="scope">
-          <div class="col-sm-3">
-            <el-image style="width: 100px; height: 50px" :src="scope.row.avatar" fit="contain"/>
-          </div>
+          <el-tag :key="scope.row.tag" type="success">{{scope.row.tag}}</el-tag>
         </template>
       </el-table-column>
       <el-table-column
@@ -72,13 +73,13 @@
         label="注册时间"
         width="160">
       </el-table-column>
-      <el-table-column label="审核状态">
+      <!--<el-table-column label="审核状态">
         <template slot-scope="scope">
           <el-tag type="success" v-if="scope.row.reviewStatus===1">审核通过</el-tag>
           <el-tag type="warning" v-else-if="scope.row.reviewStatus===2">审核不通过</el-tag>
           <el-tag type="danger" v-else-if="scope.row.reviewStatus===3">待审核</el-tag>
         </template>
-      </el-table-column>
+      </el-table-column>-->
       <el-table-column
         prop="reviewName"
         header-align="center"
@@ -105,7 +106,6 @@
         width="150"
         label="操作">
         <template slot-scope="scope">
-          <el-button v-if="scope.row.reviewStatus != 1 " type="text" size="small" @click="addOrUpdateHandle(scope.row.id)">审核</el-button>
           <el-button type="text" size="small" @click="addOrUpdateHandle(scope.row.id)">修改</el-button>
           <el-button type="text" size="small" @click="deleteHandle(scope.row.id)">删除</el-button>
         </template>
@@ -153,7 +153,14 @@
         totalPage: 0,
         dataListLoading: false,
         dataListSelections: [],
-        addOrUpdateVisible: false
+        addOrUpdateVisible: false,
+        tags: [
+          { name: '标签一', type: '' },
+          { name: '标签二', type: 'success' },
+          { name: '标签三', type: 'info' },
+          { name: '标签四', type: 'warning' },
+          { name: '标签五', type: 'danger' }
+        ]
       }
     },
     components: {
@@ -217,7 +224,7 @@
         var ids = id ? [id] : this.dataListSelections.map(item => {
           return item.id
         })
-        this.$confirm(`确定对[id=${ids.join(',')}]进行[${id ? '删除' : '批量删除'}]操作?`, '提示', {
+        this.$confirm(`确定对已选[id=${ids.join(',')}]的用户进行[${id ? '删除' : '批量删除'}]操作?`, '提示', {
           confirmButtonText: '确定',
           cancelButtonText: '取消',
           type: 'warning'

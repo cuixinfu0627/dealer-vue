@@ -3,106 +3,127 @@
     :title="!dataForm.id ? '新增' : '修改'"
     :close-on-click-modal="false"
     :visible.sync="visible">
-    <el-form :model="dataForm" :rules="dataRule" ref="dataForm" @keyup.enter.native="dataFormSubmit()" label-width="80px">
-    <el-form-item label="商品标题" prop="title">
-      <el-input v-model="dataForm.title" placeholder="商品标题"></el-input>
-    </el-form-item>
-    <el-form-item label="商品卖点" prop="sellPoint">
-      <el-input v-model="dataForm.sellPoint" placeholder="商品卖点"></el-input>
-    </el-form-item>
-    <el-form-item label="商品价格，单位为：分" prop="price">
-      <el-input v-model="dataForm.price" placeholder="商品价格，单位为：分"></el-input>
-    </el-form-item>
-    <el-form-item label="库存数量" prop="num">
-      <el-input v-model="dataForm.num" placeholder="库存数量"></el-input>
-    </el-form-item>
-    <el-form-item label="商品条形码" prop="barcode">
-      <el-input v-model="dataForm.barcode" placeholder="商品条形码"></el-input>
-    </el-form-item>
-    <el-form-item label="商品图片" prop="image">
-      <el-input v-model="dataForm.image" placeholder="商品图片"></el-input>
-    </el-form-item>
-    <el-form-item label="所属类目，叶子类目" prop="cid">
-      <el-input v-model="dataForm.cid" placeholder="所属类目，叶子类目"></el-input>
-    </el-form-item>
-    <el-form-item label="商品状态，1-正常，2-下架，3-删除" prop="status">
-      <el-input v-model="dataForm.status" placeholder="商品状态，1-正常，2-下架，3-删除"></el-input>
-    </el-form-item>
-    <el-form-item label="商品描述" prop="desc">
-      <el-input v-model="dataForm.desc" placeholder="商品描述"></el-input>
-    </el-form-item>
-    <el-form-item label="创建时间" prop="created">
-      <el-input v-model="dataForm.created" placeholder="创建时间"></el-input>
-    </el-form-item>
-    <el-form-item label="更新时间" prop="updated">
-      <el-input v-model="dataForm.updated" placeholder="更新时间"></el-input>
-    </el-form-item>
+    <el-form :model="dataForm" :rules="dataRule" ref="dataForm" @keyup.enter.native="dataFormSubmit()"
+             label-width="100px">
+      <el-form-item label="商品标题:" prop="title" :label-width="formLabelWidth">
+        <el-input v-model="dataForm.title" placeholder="商品标题"></el-input>
+      </el-form-item>
+      <el-form-item label="商品卖点:" prop="sellPoint" :label-width="formLabelWidth">
+        <el-input
+          type="textarea"
+          :autosize="{ minRows: 2, maxRows: 3}"
+          placeholder="商品卖点"
+          v-model="dataForm.sellPoint">
+        </el-input>
+      </el-form-item>
+      <el-form-item label="商品零售价(分):" prop="price" :label-width="formLabelWidth">
+        <el-input v-model="dataForm.price" placeholder="商品价格，单位为：分"></el-input>
+      </el-form-item>
+      <el-form-item label="商品成本价(分):" prop="costPrice" :label-width="formLabelWidth">
+        <el-input v-model="dataForm.costPrice" placeholder="商品成本价价格，单位为：分"></el-input>
+      </el-form-item>
+      <el-form-item label="库存数量:" prop="num" :label-width="formLabelWidth">
+        <el-input v-model="dataForm.num" placeholder="库存数量"></el-input>
+      </el-form-item>
+      <el-form-item label="规格:" prop="spec" :label-width="formLabelWidth">
+        <el-input v-model="dataForm.spec" placeholder="商品规格"></el-input>
+      </el-form-item>
+      <el-form-item label="商品图片:" prop="image">
+        <div class="myhead">
+          <el-tooltip content="点击上传Logo" placement="top" :label-width="formLabelWidth">
+            <el-image style="width: 300px; height: 150px" :src="dataForm.image" fit="contain" @click="uploadHandle()"
+                      alt=""/>
+          </el-tooltip>
+        </div>
+      </el-form-item>
+      <el-form-item label="所属类目:" prop="parentId" :label-width="formLabelWidth">
+        <el-select v-model="dataForm.cid" filterable placeholder="请选择所属类目，可搜索" size="medium" @change="onSelectType">
+          <el-option v-for="item in itemsCatList" :key="item.id" :label="item.name" :value="item.id"></el-option>
+        </el-select>
+      </el-form-item>
+      <el-form-item label="商品描述:" prop="describes" :label-width="formLabelWidth">
+        <el-input
+          type="textarea"
+          :autosize="{ minRows: 2, maxRows: 3}"
+          placeholder="商品描述"
+          v-model="dataForm.describes">
+        </el-input>
+      </el-form-item>
     </el-form>
     <span slot="footer" class="dialog-footer">
       <el-button @click="visible = false">取消</el-button>
       <el-button type="primary" @click="dataFormSubmit()">确定</el-button>
     </span>
+    <!-- 弹窗, 上传文件 -->
+    <item-upload-image v-if="uploadVisible" ref="itemUploadImage" @refreshDataList="refreshFileUrl"></item-upload-image>
   </el-dialog>
 </template>
 
 <script>
+  import 'babel-polyfill'
+  // 文件上传
+  import ItemUploadImage from './item-upload-image'
+
   export default {
-    data () {
+    data() {
       return {
+        formLabelWidth: '120px',
+        itemsCatList: [],
         visible: false,
         dataForm: {
           id: 0,
           title: '',
           sellPoint: '',
           price: '',
+          costPrice: '',
           num: '',
           barcode: '',
-          image: '',
+          image: 'http://img.testfc-dev.zhxf.ltd/sky/goods/goods.jpg',
           cid: '',
+          cname: '',
           status: '',
-          desc: '',
+          describes: '',
           created: '',
           updated: ''
         },
         dataRule: {
           title: [
-            { required: true, message: '商品标题不能为空', trigger: 'blur' }
+            {required: true, message: '商品标题不能为空', trigger: 'blur'}
           ],
           sellPoint: [
-            { required: true, message: '商品卖点不能为空', trigger: 'blur' }
+            {required: true, message: '商品卖点不能为空', trigger: 'blur'}
           ],
           price: [
-            { required: true, message: '商品价格，单位为：分不能为空', trigger: 'blur' }
+            {required: true, message: '商品价格，单位为：分不能为空', trigger: 'blur'},
+            {pattern: /^[1-9]+$/, message: '商品价格，单位为：分不能为空', trigger: 'change' }
+          ],
+          costPrice: [
+            {required: true, message: '商品成本价格，单位为：分不能为空', trigger: 'blur'},
+            {pattern: /^[1-9]+$/, message: '商品成本价格，单位为：分不能为空', trigger: 'change' }
           ],
           num: [
-            { required: true, message: '库存数量不能为空', trigger: 'blur' }
-          ],
-          barcode: [
-            { required: true, message: '商品条形码不能为空', trigger: 'blur' }
+            {required: true, message: '库存数量不能为空', trigger: 'blur'},
+            {pattern: /^[1-9]+$/, message: '库存数量不能为空', trigger: 'change' }
           ],
           image: [
-            { required: true, message: '商品图片不能为空', trigger: 'blur' }
+            {required: true, message: '商品图片不能为空', trigger: 'blur'}
           ],
           cid: [
-            { required: true, message: '所属类目，叶子类目不能为空', trigger: 'blur' }
+            {required: true, message: '所属类目，叶子类目不能为空', trigger: 'blur'}
           ],
-          status: [
-            { required: true, message: '商品状态，1-正常，2-下架，3-删除不能为空', trigger: 'blur' }
-          ],
-          desc: [
-            { required: true, message: '商品描述不能为空', trigger: 'blur' }
-          ],
-          created: [
-            { required: true, message: '创建时间不能为空', trigger: 'blur' }
-          ],
-          updated: [
-            { required: true, message: '更新时间不能为空', trigger: 'blur' }
+          describes: [
+            {required: true, message: '商品描述不能为空', trigger: 'blur'}
           ]
-        }
+        },
+        /** 上传单位Logo相关**/
+        uploadVisible: false,
       }
     },
+    components: {
+      ItemUploadImage
+    },
     methods: {
-      init (id) {
+      init(id) {
         this.dataForm.id = id || 0
         this.visible = true
         this.$nextTick(() => {
@@ -114,24 +135,60 @@
               params: this.$http.adornParams()
             }).then(({data}) => {
               if (data && data.code === 0) {
-                this.dataForm.title = data.wkaGoods.title
-                this.dataForm.sellPoint = data.wkaGoods.sellPoint
-                this.dataForm.price = data.wkaGoods.price
-                this.dataForm.num = data.wkaGoods.num
-                this.dataForm.barcode = data.wkaGoods.barcode
-                this.dataForm.image = data.wkaGoods.image
-                this.dataForm.cid = data.wkaGoods.cid
-                this.dataForm.status = data.wkaGoods.status
-                this.dataForm.desc = data.wkaGoods.desc
-                this.dataForm.created = data.wkaGoods.created
-                this.dataForm.updated = data.wkaGoods.updated
+                this.dataForm.title = data.wkaItem.title
+                this.dataForm.sellPoint = data.wkaItem.sellPoint
+                this.dataForm.price = data.wkaItem.price
+                this.dataForm.costPrice = data.wkaItem.costPrice
+                this.dataForm.num = data.wkaItem.num
+                this.dataForm.spec = data.wkaItem.spec
+                this.dataForm.barcode = data.wkaItem.barcode
+                this.dataForm.image = data.wkaItem.image
+                this.dataForm.cid = data.wkaItem.cid
+                this.dataForm.cname = data.wkaItem.cname
+                this.dataForm.status = data.wkaItem.status
+                this.dataForm.describes = data.wkaItem.describes
+                this.dataForm.created = data.wkaItem.created
+                this.dataForm.updated = data.wkaItem.updated
               }
             })
           }
         })
+        this.initItemCat()
+      },
+      initItemCat() {
+        this.$http({
+          url: this.$http.adornUrl(`/wka/item-cat/listParent`),
+          method: 'get',
+          params: this.$http.adornParams({
+            'parentId': ''
+          })
+        }).then(({data}) => {
+          if (data && data.code === 0) {
+            this.itemsCatList = data.data
+          }
+        })
+      },
+      // 筛选类型
+      onSelectType(val) {
+        let obj = this.itemsCatList.find((item) => {
+          return item.id === val;
+        });
+        this.dataForm.cname = obj.name
+      },
+      // 上传文件
+      uploadHandle() {
+        this.uploadVisible = true
+        this.$nextTick(() => {
+          this.$refs.itemUploadImage.init()
+        })
+      },
+      // 上传文件
+      refreshFileUrl(filePath) {
+        this.dataForm.image = filePath
+        this.uploadVisible = false
       },
       // 表单提交
-      dataFormSubmit () {
+      dataFormSubmit() {
         this.$refs['dataForm'].validate((valid) => {
           if (valid) {
             this.$http({
@@ -142,12 +199,15 @@
                 'title': this.dataForm.title,
                 'sellPoint': this.dataForm.sellPoint,
                 'price': this.dataForm.price,
+                'costPrice': this.dataForm.costPrice,
                 'num': this.dataForm.num,
                 'barcode': this.dataForm.barcode,
                 'image': this.dataForm.image,
                 'cid': this.dataForm.cid,
+                'cname': this.dataForm.cname,
+                'spec': this.dataForm.spec,
                 'status': this.dataForm.status,
-                'desc': this.dataForm.desc,
+                'describes': this.dataForm.describes,
                 'created': this.dataForm.created,
                 'updated': this.dataForm.updated
               })
@@ -168,7 +228,7 @@
             })
           }
         })
-      }
+      },
     }
   }
 </script>

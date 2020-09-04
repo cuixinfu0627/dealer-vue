@@ -1,10 +1,12 @@
 <template>
-  <el-dialog
-    title="上传文件"
-    :close-on-click-modal="false"
-    @close="closeHandle"
-    :visible.sync="visible">
+  <el-dialog :append-to-body="true"
+             title="上传文件"
+             :close-on-click-modal="false"
+             @close="closeHandle"
+             :visible.sync="visible">
     <el-upload
+      v-loading="loading"
+      element-loading-text="上传中..."
       drag
       :action="url"
       :before-upload="beforeUploadHandle"
@@ -23,21 +25,23 @@
   export default {
     data () {
       return {
+        loading: false,
         visible: false,
-        url: '',
+        url: this.$http.adornUrl(`/wka/item/upload?token=${this.$cookie.get('token')}`),
         num: 0,
         successNum: 0,
-        fileList: []
+        fileList: [],
+        filePath: ''
       }
     },
     methods: {
       init (id) {
-        //this.url = this.$http.adornUrl(`/sys/oss/upload?token=${this.$cookie.get('token')}`)
-        this.url = this.$http.adornUrl(`/sys/oss/uploadVsftp?token=${this.$cookie.get('token')}`)
+        this.fileList = []
         this.visible = true
       },
       // 上传之前
       beforeUploadHandle (file) {
+        this.loading = true
         if (file.type !== 'image/jpg' && file.type !== 'image/jpeg' && file.type !== 'image/png' && file.type !== 'image/gif') {
           this.$message.error('只支持jpg、png、gif格式的图片！')
           return false
@@ -48,16 +52,15 @@
       successHandle (response, file, fileList) {
         this.fileList = fileList
         this.successNum++
+        this.loading = false
         if (response && response.code === 0) {
-          if (this.num === this.successNum) {
-            this.$confirm('操作成功, 是否继续操作?', '提示', {
-              confirmButtonText: '确定',
-              cancelButtonText: '取消',
-              type: 'warning'
-            }).catch(() => {
-              this.visible = false
-            })
-          }
+          this.$message({
+            message: "上传成功！",
+            type: 'success',
+            duration: 1000,
+          })
+          this.filePath = response.filePath
+          this.$emit('refreshDataList',this.filePath)
         } else {
           this.$message.error(response.msg)
         }
@@ -65,7 +68,7 @@
       // 弹窗关闭时
       closeHandle () {
         this.fileList = []
-        this.$emit('refreshDataList')
+        this.$emit('refreshDataList',this.filePath)
       }
     }
   }

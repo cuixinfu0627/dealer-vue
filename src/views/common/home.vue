@@ -9,7 +9,7 @@
           <el-form ref="form" class="details-form" label-width="120px" label-position="left">
             <template>
               <el-form-item label="系统名称" key="系统名称">
-                <span>经销商-管理系统</span>
+                <span>Live-管理系统</span>
               </el-form-item>
             </template>
             <template>

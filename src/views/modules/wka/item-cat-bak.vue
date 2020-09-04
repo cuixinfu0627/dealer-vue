@@ -7,7 +7,7 @@
       <el-form-item>
         <el-button @click="getDataList()">查询</el-button>
         <el-button v-if="isAuth('wka:item-cat:save')" type="primary" @click="addOrUpdateHandle()">新增</el-button>
-<!--    <el-button v-if="isAuth('wka:item-cat:delete')" type="danger" @click="deleteHandle()" :disabled="dataListSelections.length <= 0">批量删除</el-button>-->
+        <el-button v-if="isAuth('wka:item-cat:delete')" type="danger" @click="deleteHandle()" :disabled="dataListSelections.length <= 0">批量删除</el-button>
       </el-form-item>
     </el-form>
     <el-table
@@ -17,12 +17,18 @@
       v-loading="dataListLoading"
       @selection-change="selectionChangeHandle"
       style="width: 100%;">
-      <!--<el-table-column
+      <el-table-column
         type="selection"
         header-align="center"
         align="center"
         width="50">
-      </el-table-column>-->
+      </el-table-column>
+      <el-table-column
+        prop="id"
+        header-align="center"
+        align="center"
+        label="分类ID">
+      </el-table-column>
       <el-table-column
         prop="name"
         header-align="center"
@@ -30,27 +36,17 @@
         label="分类名称">
       </el-table-column>
       <el-table-column
+        prop="parentId"
+        header-align="center"
+        align="center"
+        label="父分类">
+      </el-table-column>
+      <el-table-column
         prop="parentName"
         header-align="center"
         align="center"
         width="120"
         label="上级分类">
-      </el-table-column>
-      <el-table-column
-        prop="isParent"
-        header-align="center"
-        align="center"
-        label="是否为父分类">
-        <template slot-scope="scope">
-          <el-tag v-if="scope.row.isParent === 1" size="small">是</el-tag>
-          <el-tag v-else size="small">否</el-tag>
-        </template>
-      </el-table-column>
-      <el-table-column
-        prop="sortOrder"
-        header-align="center"
-        align="center"
-        label="序号">
       </el-table-column>
       <el-table-column
         prop="status"
@@ -63,7 +59,29 @@
         </template>
       </el-table-column>
       <el-table-column
+        prop="sortOrder"
+        header-align="center"
+        align="center"
+        label="序号">
+      </el-table-column>
+      <el-table-column
+        prop="isParent"
+        header-align="center"
+        align="center"
+        label="是否为父分类">
+        <template slot-scope="scope">
+          <el-tag v-if="scope.row.is_parent === 1" size="small">是</el-tag>
+          <el-tag v-else size="small">否</el-tag>
+        </template>
+      </el-table-column>
+      <el-table-column
         prop="created"
+        header-align="center"
+        align="center"
+        label="创建时间">
+      </el-table-column>
+      <el-table-column
+        prop="updated"
         header-align="center"
         align="center"
         label="创建时间">
@@ -124,7 +142,7 @@
         this.dataListLoading = true
         this.$http({
           //url: this.$http.adornUrl('/wka/item-cat/list'),
-          url: this.$http.adornUrl('/wka/item-cat/listTree'),
+          url: this.$http.adornUrl('/wka/item-cat/list2'),
           method: 'get',
           params: this.$http.adornParams()
           // params: this.$http.adornParams({
@@ -133,14 +151,15 @@
           //   'key': this.dataForm.key
           // })
         }).then(({data}) => {
-          if (data && data.code === 0) {
-            this.dataList = treeDataTranslate(data.data, 'id')
-            // this.dataList = data.page.list
-            // this.totalPage = data.page.totalCount
-          } else {
-            this.dataList = []
-            this.totalPage = 0
-          }
+          this.dataList = this.dataList = treeDataTranslate(data, 'id')
+
+          // if (data && data.code === 0) {
+          //   this.dataList = data.page.list
+          //   this.totalPage = data.page.totalCount
+          // } else {
+          //   this.dataList = []
+          //   this.totalPage = 0
+          // }
           this.dataListLoading = false
         })
       },

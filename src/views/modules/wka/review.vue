@@ -1,72 +1,100 @@
 <template>
   <div class="mod-config">
     <el-form :inline="true" :model="dataForm" @keyup.enter.native="getDataList()">
+      <el-select v-model="dataForm.reviewStatus" filterable placeholder="审核状态" @change="selectStatus">
+        <el-option
+          v-for="item in options"
+          :key="item.reviewStatus"
+          :label="item.label"
+          :value="item.reviewStatus">
+        </el-option>
+      </el-select>
       <el-form-item>
-        <el-input v-model="dataForm.key" placeholder="分类名称" clearable></el-input>
+        <el-input v-model="dataForm.key" placeholder="商户昵称" clearable></el-input>
       </el-form-item>
       <el-form-item>
         <el-button @click="getDataList()">查询</el-button>
-        <el-button v-if="isAuth('wka:item-cat:save')" type="primary" @click="addOrUpdateHandle()">新增</el-button>
-<!--    <el-button v-if="isAuth('wka:item-cat:delete')" type="danger" @click="deleteHandle()" :disabled="dataListSelections.length <= 0">批量删除</el-button>-->
       </el-form-item>
     </el-form>
     <el-table
       :data="dataList"
-      row-key="id"
       border
       v-loading="dataListLoading"
       @selection-change="selectionChangeHandle"
       style="width: 100%;">
-      <!--<el-table-column
-        type="selection"
-        header-align="center"
-        align="center"
-        width="50">
-      </el-table-column>-->
       <el-table-column
-        prop="name"
+        prop="id"
         header-align="center"
         align="center"
-        label="分类名称">
+        label="用户id">
       </el-table-column>
       <el-table-column
-        prop="parentName"
+        prop="username"
         header-align="center"
         align="center"
-        width="120"
-        label="上级分类">
+        label="姓名">
       </el-table-column>
       <el-table-column
-        prop="isParent"
+        prop="nickname"
         header-align="center"
         align="center"
-        label="是否为父分类">
+        label="昵称">
+      </el-table-column>
+      <el-table-column
+        prop="email"
+        header-align="center"
+        align="center"
+        label="邮箱">
+      </el-table-column>
+      <el-table-column
+        prop="mobile"
+        header-align="center"
+        align="center"
+        label="手机号">
+      </el-table-column>
+      <el-table-column
+        prop="avatar"
+        header-align="center"
+        align="center"
+        label="头像">
         <template slot-scope="scope">
-          <el-tag v-if="scope.row.isParent === 1" size="small">是</el-tag>
-          <el-tag v-else size="small">否</el-tag>
+          <div class="col-sm-3">
+            <el-image style="width: 100px; height: 50px" :src="scope.row.avatar" fit="contain"/>
+          </div>
         </template>
       </el-table-column>
       <el-table-column
-        prop="sortOrder"
+        prop="createTime"
         header-align="center"
         align="center"
-        label="序号">
+        label="注册时间"
+        width="160">
       </el-table-column>
-      <el-table-column
-        prop="status"
-        header-align="center"
-        align="center"
-        label="状态">
+      <el-table-column label="审核状态">
         <template slot-scope="scope">
-          <el-tag v-if="scope.row.status === 2" size="small" type="danger">删除</el-tag>
-          <el-tag v-else size="small">正常</el-tag>
+          <el-tag type="success" v-if="scope.row.reviewStatus===1">审核通过</el-tag>
+          <el-tag type="warning" v-else-if="scope.row.reviewStatus===2">审核不通过</el-tag>
+          <el-tag type="danger" v-else-if="scope.row.reviewStatus===3">待审核</el-tag>
         </template>
       </el-table-column>
       <el-table-column
-        prop="created"
+        prop="reviewName"
         header-align="center"
         align="center"
-        label="创建时间">
+        label="审核人姓名">
+      </el-table-column>
+      <el-table-column
+        prop="reviewContent"
+        header-align="center"
+        align="center"
+        label="审核内容">
+      </el-table-column>
+      <el-table-column
+        prop="reviewTime"
+        header-align="center"
+        align="center"
+        label="审核时间"
+        width="160">
       </el-table-column>
       <el-table-column
         fixed="right"
@@ -75,8 +103,7 @@
         width="150"
         label="操作">
         <template slot-scope="scope">
-          <el-button type="text" size="small" @click="addOrUpdateHandle(scope.row.id)">修改</el-button>
-          <el-button type="text" size="small" @click="deleteHandle(scope.row.id)">删除</el-button>
+          <el-button v-if="scope.row.reviewStatus != 1 " type="text" size="small" @click="addOrUpdateHandle(scope.row.id)">审核</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -95,13 +122,23 @@
 </template>
 
 <script>
-  import AddOrUpdate from './item-cat-add-or-update'
-  import { treeDataTranslate } from '@/utils'
+  import AddOrUpdate from './review-add-or-update'
   export default {
     data () {
       return {
+        options: [{
+          reviewStatus: '',
+          label: '全部状态'
+        },{
+          reviewStatus: 3,
+          label: '待审核'
+        }, {
+          reviewStatus: 2,
+          label: '审核不通过'
+        }],
         dataForm: {
-          key: ''
+          reviewStatus: '',
+          key: '',
         },
         dataList: [],
         pageIndex: 1,
@@ -119,24 +156,26 @@
       this.getDataList()
     },
     methods: {
+      selectStatus(value){
+        this.dataForm.reviewStatus = value
+        this.getDataList()
+      },
       // 获取数据列表
       getDataList () {
         this.dataListLoading = true
         this.$http({
-          //url: this.$http.adornUrl('/wka/item-cat/list'),
-          url: this.$http.adornUrl('/wka/item-cat/listTree'),
+          url: this.$http.adornUrl('/wka/review/list'),
           method: 'get',
-          params: this.$http.adornParams()
-          // params: this.$http.adornParams({
-          //   'page': this.pageIndex,
-          //   'limit': this.pageSize,
-          //   'key': this.dataForm.key
-          // })
+          params: this.$http.adornParams({
+            'page': this.pageIndex,
+            'limit': this.pageSize,
+            'reviewStatus': this.dataForm.reviewStatus,
+            'key': this.dataForm.key
+          })
         }).then(({data}) => {
           if (data && data.code === 0) {
-            this.dataList = treeDataTranslate(data.data, 'id')
-            // this.dataList = data.page.list
-            // this.totalPage = data.page.totalCount
+            this.dataList = data.page.list
+            this.totalPage = data.page.totalCount
           } else {
             this.dataList = []
             this.totalPage = 0
@@ -177,7 +216,7 @@
           type: 'warning'
         }).then(() => {
           this.$http({
-            url: this.$http.adornUrl('/wka/item-cat/delete'),
+            url: this.$http.adornUrl('/wka/review/delete'),
             method: 'post',
             data: this.$http.adornData(ids, false)
           }).then(({data}) => {

@@ -3,28 +3,44 @@
     :title="!dataForm.id ? '新增' : '修改'"
     :close-on-click-modal="false"
     :visible.sync="visible">
-    <el-form :model="dataForm" :rules="dataRule" ref="dataForm" @keyup.enter.native="dataFormSubmit()" label-width="80px">
+    <el-form :model="dataForm" :rules="dataRule" ref="dataForm" @keyup.enter.native="dataFormSubmit()"
+             label-width="150px">
       <el-form-item label="头像:" prop="avatar">
         <div class="col-sm-3">
           <el-image style="width: 100px; height: 50px" :src="dataForm.avatar" fit="contain"/>
         </div>
       </el-form-item>
-      <el-form-item label="姓名" prop="username">
-        <el-input v-model="dataForm.username" placeholder="姓名"></el-input>
+      <el-form-item label="姓名:" prop="username">
+        <span>{{dataForm.username}}</span>
       </el-form-item>
-      <el-form-item label="昵称" prop="nickname">
-        <el-input v-model="dataForm.nickname" placeholder="昵称"></el-input>
+      <el-form-item label="昵称:" prop="nickname">
+        <span>{{dataForm.nickname}}</span>
       </el-form-item>
-      <el-form-item label="邮箱" prop="email">
-        <el-input v-model="dataForm.email" placeholder="邮箱"></el-input>
+      <el-form-item label="邮箱:" prop="email">
+        <span>{{dataForm.email}}</span>
       </el-form-item>
-      <el-form-item label="手机号" prop="mobile">
-        <el-input v-model="dataForm.mobile" placeholder="手机号"></el-input>
+      <el-form-item label="手机号:" prop="mobile">
+        <span>{{dataForm.mobile}}</span>
       </el-form-item>
-      <el-form-item label="用户标签" prop="tag">
-        <el-input v-model="dataForm.tag" placeholder="用户标签,多个用逗号[,]分隔"></el-input>
+      <el-form-item label="审核状态" prop="reviewStatus">
+        <el-select v-model="dataForm.reviewStatus" filterable placeholder="审核状态">
+          <el-option
+            v-for="item in options"
+            :key="item.value"
+            :label="item.label"
+            :value="item.value">
+          </el-option>
+        </el-select>
       </el-form-item>
-      </el-form>
+      <el-form-item label="审核说明" prop="reviewContent">
+        <el-input
+          type="textarea"
+          :autosize="{ minRows: 1, maxRows: 1}"
+          placeholder="请输入说明"
+          v-model="dataForm.reviewContent">
+        </el-input>
+      </el-form-item>
+    </el-form>
     <span slot="footer" class="dialog-footer">
       <el-button @click="visible = false">取消</el-button>
       <el-button type="primary" @click="dataFormSubmit()">确定</el-button>
@@ -34,82 +50,51 @@
 
 <script>
   export default {
-    data () {
+    data() {
       return {
+        options: [{
+          value: 1,
+          label: '审核通过'
+        }, {
+          value: 3,
+          label: '待审核'
+        }, {
+          value: 2,
+          label: '审核不通过'
+        }],
         visible: false,
         dataForm: {
           id: 0,
           username: '',
           nickname: '',
           password: '',
-          salt: '',
           email: '',
           mobile: '',
           avatar: '',
           status: '',
           createTime: '',
-          reviewStatus: '',
+          reviewStatus: 1,
           reviewId: '',
           reviewName: '',
           reviewContent: '',
-          reviewTime: '',
-          tag: ''
+          reviewTime: ''
         },
         dataRule: {
-          username: [
-            { required: true, message: '姓名不能为空', trigger: 'blur' }
-          ],
-          nickname: [
-            { required: true, message: '昵称不能为空', trigger: 'blur' }
-          ],
-          password: [
-            { required: true, message: '密码不能为空', trigger: 'blur' }
-          ],
-          salt: [
-            { required: true, message: '盐不能为空', trigger: 'blur' }
-          ],
-          email: [
-            { required: true, message: '邮箱不能为空', trigger: 'blur' }
-          ],
-          mobile: [
-            { required: true, message: '手机号不能为空', trigger: 'blur' }
-          ],
-          avatar: [
-            { required: true, message: '头像不能为空', trigger: 'blur' }
-          ],
-          status: [
-            { required: true, message: '状态  0：正常 1：禁用不能为空', trigger: 'blur' }
-          ],
-          createTime: [
-            { required: true, message: '创建时间不能为空', trigger: 'blur' }
-          ],
           reviewStatus: [
-            { required: true, message: '审核状态:1审核通过,2审核未通过,3待审核不能为空', trigger: 'blur' }
+            {required: true, message: '审核状态:1审核通过,2审核未通过,3待审核不能为空', trigger: 'blur'}
           ],
-          reviewId: [
-            { required: true, message: '审核人ID不能为空', trigger: 'blur' }
-          ],
-          reviewName: [
-            { required: true, message: '审核人姓名不能为空', trigger: 'blur' }
-          ],
-          reviewContent: [
-            { required: true, message: '审核内容不能为空', trigger: 'blur' }
-          ],
-          reviewTime: [
-            { required: true, message: '审核时间不能为空', trigger: 'blur' }
-          ]
         }
       }
     },
     methods: {
-      init (id) {
+      init(id) {
         this.dataForm.id = id || 0
         this.visible = true
         this.$nextTick(() => {
           this.$refs['dataForm'].resetFields()
           if (this.dataForm.id) {
             this.$http({
-              url: this.$http.adornUrl(`/wka/user/info/${this.dataForm.id}`),
+              url: this.$http.adornUrl(`/wka/review/info/${this.dataForm.id}`),
               method: 'get',
               params: this.$http.adornParams()
             }).then(({data}) => {
@@ -123,31 +108,31 @@
                 this.dataForm.avatar = data.wkaDealer.avatar
                 this.dataForm.status = data.wkaDealer.status
                 this.dataForm.createTime = data.wkaDealer.createTime
-                this.dataForm.reviewStatus = data.wkaDealer.reviewStatus
                 this.dataForm.reviewId = data.wkaDealer.reviewId
                 this.dataForm.reviewName = data.wkaDealer.reviewName
                 this.dataForm.reviewContent = data.wkaDealer.reviewContent
                 this.dataForm.reviewTime = data.wkaDealer.reviewTime
-                this.dataForm.tag = data.wkaDealer.tag
               }
             })
           }
         })
       },
       // 表单提交
-      dataFormSubmit () {
+      dataFormSubmit() {
         this.$refs['dataForm'].validate((valid) => {
           if (valid) {
             this.$http({
-              url: this.$http.adornUrl(`/wka/user/${!this.dataForm.id ? 'save' : 'update'}`),
+              url: this.$http.adornUrl(`/wka/review/update`),
               method: 'post',
               data: this.$http.adornData({
                 'id': this.dataForm.id || undefined,
                 'username': this.dataForm.username,
                 'nickname': this.dataForm.nickname,
-                'mobile': this.dataForm.mobile,
-                'avatar': this.dataForm.avatar,
-                'tag': this.dataForm.tag
+                'reviewStatus': this.dataForm.reviewStatus,
+                'reviewId': this.dataForm.reviewId,
+                'reviewName': this.dataForm.reviewName,
+                'reviewContent': this.dataForm.reviewContent,
+                'reviewTime': this.dataForm.reviewTime
               })
             }).then(({data}) => {
               if (data && data.code === 0) {

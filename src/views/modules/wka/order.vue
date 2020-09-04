@@ -10,7 +10,7 @@
         </el-option>
       </el-select>
       <el-form-item>
-        <el-input v-model="dataForm.key" placeholder="参数名" clearable></el-input>
+        <el-input v-model="dataForm.key" placeholder="请输入订单号" clearable></el-input>
       </el-form-item>
       <el-form-item>
         <el-button @click="getDataList()">查询</el-button>
@@ -30,12 +30,6 @@
         width="50">
       </el-table-column>
       <el-table-column
-        prop="id"
-        header-align="center"
-        align="center"
-        label="订单id">
-      </el-table-column>
-      <el-table-column
         prop="orderNum"
         header-align="center"
         align="center"
@@ -47,7 +41,7 @@
         align="center"
         label="实付金额">
       </el-table-column>
-      <el-table-column label="支付类型">
+      <el-table-column  align="center" label="支付类型">
         <template slot-scope="scope">
           <el-tag type="success" v-if="scope.row.paymentType===1">在线支付</el-tag>
           <el-tag type="warning" v-else-if="scope.row.paymentType===2">货到付款</el-tag>
@@ -57,9 +51,10 @@
         prop="createTime"
         header-align="center"
         align="center"
+        width="160px"
         label="创建时间">
       </el-table-column>
-      <el-table-column label="状态">
+      <el-table-column  align="center" label="状态" width="100px">
         <template slot-scope="scope">
           <el-tag type="" v-if="scope.row.status===1">未付款</el-tag>
           <el-tag type="success" v-else-if="scope.row.status===2">已付款</el-tag>
@@ -73,6 +68,7 @@
         prop="endTime"
         header-align="center"
         align="center"
+        width="160px"
         label="完成时间">
       </el-table-column>
       <el-table-column
