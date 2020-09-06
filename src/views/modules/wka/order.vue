@@ -14,7 +14,7 @@
       </el-form-item>
       <el-form-item>
         <el-button @click="getDataList()">查询</el-button>
-        <el-button v-if="isAuth('wka:order:delete')" type="danger" @click="deleteHandle()" :disabled="dataListSelections.length <= 0">批量删除</el-button>
+<!--    <el-button v-if="isAuth('wka:order:delete')" type="danger" @click="deleteHandle()" :disabled="dataListSelections.length <= 0">批量删除</el-button>-->
       </el-form-item>
     </el-form>
     <el-table
@@ -23,12 +23,12 @@
       v-loading="dataListLoading"
       @selection-change="selectionChangeHandle"
       style="width: 100%;">
-      <el-table-column
-        type="selection"
-        header-align="center"
-        align="center"
-        width="50">
-      </el-table-column>
+<!--      <el-table-column-->
+<!--        type="selection"-->
+<!--        header-align="center"-->
+<!--        align="center"-->
+<!--        width="50">-->
+<!--      </el-table-column>-->
       <el-table-column
         prop="orderNum"
         header-align="center"
@@ -39,43 +39,29 @@
         prop="payment"
         header-align="center"
         align="center"
+        :formatter="handlderPrice"
         label="实付金额">
-      </el-table-column>
-      <el-table-column  align="center" label="支付类型">
-        <template slot-scope="scope">
-          <el-tag type="success" v-if="scope.row.paymentType===1">在线支付</el-tag>
-          <el-tag type="warning" v-else-if="scope.row.paymentType===2">货到付款</el-tag>
-        </template>
-      </el-table-column>
-      <el-table-column
-        prop="createTime"
-        header-align="center"
-        align="center"
-        width="160px"
-        label="创建时间">
-      </el-table-column>
-      <el-table-column  align="center" label="状态" width="100px">
-        <template slot-scope="scope">
-          <el-tag type="" v-if="scope.row.status===1">未付款</el-tag>
-          <el-tag type="success" v-else-if="scope.row.status===2">已付款</el-tag>
-          <el-tag type="info" v-else-if="scope.row.status===3">未发货</el-tag>
-          <el-tag type="danger" v-else-if="scope.row.status===4">已发货</el-tag>
-          <el-tag type="warning" v-else-if="scope.row.status===5">交易成功</el-tag>
-          <el-tag type="info" v-else-if="scope.row.status===6">交易完成</el-tag>
-        </template>
-      </el-table-column>
-      <el-table-column
-        prop="endTime"
-        header-align="center"
-        align="center"
-        width="160px"
-        label="完成时间">
       </el-table-column>
       <el-table-column
         prop="username"
         header-align="center"
         align="center"
         label="用户">
+      </el-table-column>
+      <el-table-column
+        prop="buyerNick"
+        header-align="center"
+        align="center"
+        label="买家昵称">
+      </el-table-column>
+      <el-table-column
+        prop="userTag"
+        header-align="center"
+        align="center"
+        label="用户标签">
+        <template slot-scope="scope">
+          <el-tag :key="scope.row.tag" type="success">{{scope.row.userTag}}</el-tag>
+        </template>
       </el-table-column>
       <el-table-column
         prop="mobile"
@@ -90,10 +76,25 @@
         label="买家留言">
       </el-table-column>
       <el-table-column
-        prop="buyerNick"
+        prop="createTime"
         header-align="center"
         align="center"
-        label="买家昵称">
+        width="160px"
+        label="创建时间">
+      </el-table-column>
+      <el-table-column  align="center" label="状态" width="100px">
+        <template slot-scope="scope">
+          <el-tag type="" v-if="scope.row.status===1">待确认</el-tag>
+          <el-tag type="success" v-else-if="scope.row.status===2">已确认</el-tag>
+          <el-tag type="danger" v-else-if="scope.row.status===3">已取消</el-tag>
+        </template>
+      </el-table-column>
+      <el-table-column
+        prop="endTime"
+        header-align="center"
+        align="center"
+        width="160px"
+        label="修改时间">
       </el-table-column>
       <el-table-column
         fixed="right"
@@ -102,9 +103,11 @@
         width="150"
         label="操作">
         <template slot-scope="scope">
-          <el-button type="text" size="small" @click="addOrUpdateHandle(scope.row.orderId)">明细</el-button>
-          <el-button type="text" size="small" @click="addOrUpdateHandle(scope.row.orderId)">修改</el-button>
-          <el-button type="text" size="small" @click="deleteHandle(scope.row.orderId)">删除</el-button>
+          <el-button type="text" size="small" @click="addOrUpdateHandle(scope.row.id)">明细</el-button>
+          <template v-if="scope.row.status==1">
+            <el-button type="text" plain @click="updateOrderHandle(scope.row.id,2)">确定</el-button>
+            <el-button type="text" plain @click="updateOrderHandle(scope.row.id,3)">取消</el-button>
+          </template>
         </template>
       </el-table-column>
     </el-table>
@@ -130,24 +133,15 @@
         options: [{
           status: '',
           label: '全部状态'
-        }, {
+        },{
           status: '1',
-          label: '未付款'
+          label: '待确认'
         },{
           status: '2',
-          label: '已付款'
+          label: '已确认'
         }, {
           status: '3',
-          label: '未发货'
-        }, {
-          status: '4',
-          label: '已发货'
-        },{
-          status: '5',
-          label: '交易成功'
-        }, {
-          status: '6',
-          label: '交易关闭'
+          label: '已取消'
         }],
         dataForm: {
           status,
@@ -172,6 +166,10 @@
       selectStatus(value){
         this.dataForm.status = value
         this.getDataList()
+      },
+      handlderPrice(row, column) {
+        var value = this.regFenToYuan(row.payment);
+        return value + " 元"
       },
       // 获取数据列表
       getDataList () {
@@ -217,6 +215,62 @@
         this.$nextTick(() => {
           this.$refs.addOrUpdate.init(id)
         })
+      },
+      // 修改订单状态
+      updateOrderHandle(id,status){
+        this.$confirm(`您确定要对该订单进行[${ status == 2 ? '确定' : '取消'}]操作?`, '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+          this.$http({
+            url: this.$http.adornUrl('/wka/order/updateOrderStatus'),
+            method: 'post',
+            data: this.$http.adornData({
+              'id': id,
+              'status': status
+            })
+          }).then(({data}) => {
+            if (data && data.code === 0) {
+              this.$message({
+                message: '操作成功',
+                type: 'success',
+                duration: 1500,
+                onClose: () => {
+                  this.getDataList()
+                }
+              })
+            } else {
+              this.$message.error(data.msg)
+            }
+          })
+        })
+      },
+      regFenToYuan(fen) {
+        var num = fen;
+        num = fen * 0.01;
+        num += '';
+        var reg = num.indexOf('.') > -1 ? /(\d{1,3})(?=(?:\d{3})+\.)/g : /(\d{1,3})(?=(?:\d{3})+$)/g;
+        num = num.replace(reg, '$1');
+        num = this.toDecimal2(num)
+        return num
+      },
+      toDecimal2(x) {
+        var f = parseFloat(x);
+        if (isNaN(f)) {
+          return false;
+        }
+        var f = Math.round(x * 100) / 100;
+        var s = f.toString();
+        var rs = s.indexOf('.');
+        if (rs < 0) {
+          rs = s.length;
+          s += '.';
+        }
+        while (s.length <= rs + 2) {
+          s += '0';
+        }
+        return s;
       },
       // 删除
       deleteHandle (id) {

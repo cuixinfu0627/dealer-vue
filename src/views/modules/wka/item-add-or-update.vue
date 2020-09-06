@@ -160,7 +160,8 @@
           url: this.$http.adornUrl(`/wka/item-cat/listParent`),
           method: 'get',
           params: this.$http.adornParams({
-            'parentId': ''
+            'parentId': '',
+            'isParent': 0,
           })
         }).then(({data}) => {
           if (data && data.code === 0) {
