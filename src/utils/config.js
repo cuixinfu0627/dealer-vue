@@ -2,7 +2,7 @@
 const uploadHeader = "http://api.live.xingfu999.com/renren-fast/sys/user/uploadAavatar";
 
 // 默认图片地址:
-const headImgUrl = "upload/20200408/2b9f25ee47f72c66fb78715b1a4f6b22.jpg";
+const headImgUrl = "https://wx.qlogo.cn/mmhead/NFTP6g88OibUZHkPI0KpQvtsnjYz3qQUYMlPAibM3LFqc/132";
 
 export default {
   uploadHeader,

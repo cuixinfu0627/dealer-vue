@@ -1,14 +1,22 @@
 <template>
   <div class="mod-config">
     <el-form :inline="true" :model="dataForm" @keyup.enter.native="getDataList()">
-      <el-form-item>
-        <el-input v-model="dataForm.key" placeholder="参数名" clearable></el-input>
-      </el-form-item>
-      <el-form-item>
-        <el-button @click="getDataList()">查询</el-button>
-        <el-button v-if="isAuth('sys:message-user:save')" type="primary" @click="addOrUpdateHandle()">新增</el-button>
-        <el-button v-if="isAuth('sys:message-user:delete')" type="danger" @click="deleteHandle()" :disabled="dataListSelections.length <= 0">批量删除</el-button>
-      </el-form-item>
+<!--      <el-select v-model="dataForm.status" filterable placeholder="状态" @change="selectStatus">-->
+<!--        <el-option-->
+<!--          v-for="item in options"-->
+<!--          :key="item.status"-->
+<!--          :label="item.label"-->
+<!--          :value="item.status">-->
+<!--        </el-option>-->
+<!--      </el-select>-->
+<!--      <el-form-item>-->
+<!--        <el-input v-model="dataForm.key" placeholder="参数名" clearable></el-input>-->
+<!--      </el-form-item>-->
+<!--      <el-form-item>-->
+<!--        <el-button @click="getDataList()">查询</el-button>-->
+<!--       <el-button v-if="isAuth('sys:message-user:save')" type="primary" @click="addOrUpdateHandle()">新增</el-button>-->
+<!--         <el-button v-if="isAuth('sys:message-user:delete')" type="danger" @click="deleteHandle()" :disabled="dataListSelections.length <= 0">批量删除</el-button>&ndash;&gt;-->
+<!--      </el-form-item>-->
     </el-form>
     <el-table
       :data="dataList"
@@ -16,12 +24,12 @@
       v-loading="dataListLoading"
       @selection-change="selectionChangeHandle"
       style="width: 100%;">
-      <el-table-column
-        type="selection"
-        header-align="center"
-        align="center"
-        width="50">
-      </el-table-column>
+      <!--      <el-table-column
+              type="selection"
+              header-align="center"
+              align="center"
+              width="50">
+            </el-table-column>-->
       <el-table-column
         prop="id"
         header-align="center"
@@ -29,44 +37,40 @@
         label="ID">
       </el-table-column>
       <el-table-column
-        prop="messageId"
+        prop="title"
         header-align="center"
         align="center"
-        label="消息ID">
+        label="标题">
       </el-table-column>
       <el-table-column
-        prop="toType"
+        prop="content"
         header-align="center"
         align="center"
-        label="接收人类型">
+        label="内容">
+        <template slot-scope="scope">
+          <el-popover
+            placement="top-start"
+            width="300"
+            trigger="hover"
+            :disabled="scope.row.content.length <= 15">
+            <div>{{ scope.row.content }}</div>
+            <span slot="reference" v-if="scope.row.content.length <= 15">{{scope.row.content}}</span>
+            <span slot="reference"
+                  v-if="scope.row.content.length > 15">{{scope.row.content.substr(0, 15) + "..."}}</span>
+          </el-popover>
+        </template>
       </el-table-column>
       <el-table-column
         prop="toNickName"
         header-align="center"
         align="center"
-        label="用户昵称">
-      </el-table-column>
-      <el-table-column
-        prop="readTime"
-        header-align="center"
-        align="center"
-        label="读取时间">
+        label="接收人">
       </el-table-column>
       <el-table-column
         prop="createTime"
         header-align="center"
         align="center"
         label="创建时间">
-      </el-table-column>
-      <el-table-column
-        prop="status"
-        header-align="center"
-        align="center"
-        label="状态">
-        <template slot-scope="scope">
-          <el-tag type="success" v-if="scope.row.status===1">已读</el-tag>
-          <el-tag type="warning" v-else-if="scope.row.status===2">未读</el-tag>
-        </template>
       </el-table-column>
       <el-table-column
         fixed="right"
@@ -95,11 +99,29 @@
 
 <script>
   import AddOrUpdate from './message-user-add-or-update'
+
   export default {
-    data () {
+    data() {
       return {
+        options: [{
+          status: '',
+          label: '全部类型'
+        }, {
+          status: '1',
+          label: '系统通知'
+        }, {
+          status: '2',
+          label: '系统公告'
+        }, {
+          status: '3',
+          label: '服务提醒'
+        }, {
+          status: '4',
+          label: '交易提醒'
+        }],
         dataForm: {
-          key: ''
+          key: '',
+          messageType: ''
         },
         dataList: [],
         pageIndex: 1,
@@ -113,12 +135,16 @@
     components: {
       AddOrUpdate
     },
-    activated () {
+    activated() {
       this.getDataList()
     },
     methods: {
+      selectStatus(value) {
+        this.dataForm.messageType = value
+        this.getDataList()
+      },
       // 获取数据列表
-      getDataList () {
+      getDataList() {
         this.dataListLoading = true
         this.$http({
           url: this.$http.adornUrl('/sys/message-user/list'),
@@ -126,7 +152,8 @@
           params: this.$http.adornParams({
             'page': this.pageIndex,
             'limit': this.pageSize,
-            'key': this.dataForm.key
+            'key': this.dataForm.key,
+            'messageType': this.dataForm.messageType
           })
         }).then(({data}) => {
           if (data && data.code === 0) {
@@ -140,29 +167,29 @@
         })
       },
       // 每页数
-      sizeChangeHandle (val) {
+      sizeChangeHandle(val) {
         this.pageSize = val
         this.pageIndex = 1
         this.getDataList()
       },
       // 当前页
-      currentChangeHandle (val) {
+      currentChangeHandle(val) {
         this.pageIndex = val
         this.getDataList()
       },
       // 多选
-      selectionChangeHandle (val) {
+      selectionChangeHandle(val) {
         this.dataListSelections = val
       },
       // 新增 / 修改
-      addOrUpdateHandle (id) {
+      addOrUpdateHandle(id) {
         this.addOrUpdateVisible = true
         this.$nextTick(() => {
           this.$refs.addOrUpdate.init(id)
         })
       },
       // 删除
-      deleteHandle (id) {
+      deleteHandle(id) {
         var ids = id ? [id] : this.dataListSelections.map(item => {
           return item.id
         })

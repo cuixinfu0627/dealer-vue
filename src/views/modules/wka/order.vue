@@ -9,12 +9,20 @@
           :value="item.status">
         </el-option>
       </el-select>
+      <el-date-picker size="medium" v-model="dateValue" type="daterange" class="margin-right-20" unlink-panels
+                      range-separator="至" start-placeholder="开始日期" end-placeholder="结束日期"
+                      :picker-options="pickerOptions" @change="chooseTimeRange" format="yyyy 年 MM 月 dd 日"
+                      value-format="yyyy-MM-dd">
+      </el-date-picker>
       <el-form-item>
         <el-input v-model="dataForm.key" placeholder="请输入订单号" clearable></el-input>
       </el-form-item>
       <el-form-item>
         <el-button @click="getDataList()">查询</el-button>
-<!--    <el-button v-if="isAuth('wka:order:delete')" type="danger" @click="deleteHandle()" :disabled="dataListSelections.length <= 0">批量删除</el-button>-->
+        <!--    <el-button v-if="isAuth('wka:order:delete')" type="danger" @click="deleteHandle()" :disabled="dataListSelections.length <= 0">批量删除</el-button>-->
+      </el-form-item>
+      <el-form-item>
+        <el-button type="success" round @click="exportExcel()">导出Excel</el-button>
       </el-form-item>
     </el-form>
     <el-table
@@ -23,12 +31,12 @@
       v-loading="dataListLoading"
       @selection-change="selectionChangeHandle"
       style="width: 100%;">
-<!--      <el-table-column-->
-<!--        type="selection"-->
-<!--        header-align="center"-->
-<!--        align="center"-->
-<!--        width="50">-->
-<!--      </el-table-column>-->
+      <!--      <el-table-column-->
+      <!--        type="selection"-->
+      <!--        header-align="center"-->
+      <!--        align="center"-->
+      <!--        width="50">-->
+      <!--      </el-table-column>-->
       <el-table-column
         prop="orderNum"
         header-align="center"
@@ -70,6 +78,12 @@
         label="联系电话">
       </el-table-column>
       <el-table-column
+        prop="shippingAddress"
+        header-align="center"
+        align="center"
+        label="配送地址">
+      </el-table-column>
+      <el-table-column
         prop="buyerMessage"
         header-align="center"
         align="center"
@@ -82,7 +96,7 @@
         width="160px"
         label="创建时间">
       </el-table-column>
-      <el-table-column  align="center" label="状态" width="100px">
+      <el-table-column align="center" label="状态" width="100px">
         <template slot-scope="scope">
           <el-tag type="" v-if="scope.row.status===1">待确认</el-tag>
           <el-tag type="success" v-else-if="scope.row.status===2">已确认</el-tag>
@@ -105,7 +119,10 @@
         <template slot-scope="scope">
           <el-button type="text" size="small" @click="addOrUpdateHandle(scope.row.id)">明细</el-button>
           <template v-if="scope.row.status==1">
-            <el-button type="text" plain @click="updateOrderHandle(scope.row.id,2)">确定</el-button>
+            <el-button type="text" small @click="updateOrderHandle(scope.row.id,2)">确定</el-button>
+            <el-button type="text" small @click="updateOrderHandle(scope.row.id,3)">取消</el-button>
+          </template>
+          <template v-if="scope.row.status==2">
             <el-button type="text" plain @click="updateOrderHandle(scope.row.id,3)">取消</el-button>
           </template>
         </template>
@@ -127,25 +144,66 @@
 
 <script>
   import AddOrUpdate from './order-add-or-update'
+
   export default {
-    data () {
+    data() {
       return {
         options: [{
           status: '',
           label: '全部状态'
-        },{
+        }, {
           status: '1',
           label: '待确认'
-        },{
+        }, {
           status: '2',
           label: '已确认'
         }, {
           status: '3',
           label: '已取消'
         }],
+        dateValue: '',
+        pickerOptions: {
+          shortcuts: [{
+            text: '今日',
+            onClick(picker) {
+              const end = new Date()
+              const begin = new Date()
+              picker.$emit('pick', [begin, end])
+            }
+          }, {
+            text: '最近一周',
+            onClick(picker) {
+              const end = new Date()
+              const begin = new Date()
+              begin.setTime(begin.getTime() - 3600 * 1000 * 24 * 7)
+              picker.$emit('pick', [begin, end])
+            }
+          },
+            {
+              text: '最近一个月',
+              onClick(picker) {
+                const end = new Date()
+                const begin = new Date()
+                begin.setTime(begin.getTime() - 3600 * 1000 * 24 * 30)
+                picker.$emit('pick', [begin, end])
+              }
+            },
+            {
+              text: '最近三个月',
+              onClick(picker) {
+                const end = new Date()
+                const begin = new Date()
+                begin.setTime(begin.getTime() - 3600 * 1000 * 24 * 90)
+                picker.$emit('pick', [begin, end])
+              }
+            }
+          ]
+        },
         dataForm: {
           status,
-          key: ''
+          key: '',
+          starTime: '',
+          endTime: ''
         },
         dataList: [],
         pageIndex: 1,
@@ -159,11 +217,11 @@
     components: {
       AddOrUpdate
     },
-    activated () {
+    activated() {
       this.getDataList()
     },
     methods: {
-      selectStatus(value){
+      selectStatus(value) {
         this.dataForm.status = value
         this.getDataList()
       },
@@ -171,8 +229,25 @@
         var value = this.regFenToYuan(row.payment);
         return value + " 元"
       },
+      chooseTimeRange(t) {
+        if (t === null || t === '') {
+          this.dataForm.starTime = ''
+          this.dataForm.endTime = ''
+          return
+        }
+        this.dateValue = t
+        var starTime = this.dateValue[0]
+        var endTime = this.dateValue[1]
+        if (starTime === endTime) {
+          this.dataForm.endTime = endTime + ' 23:59:00'
+        } else {
+          this.dataForm.endTime = endTime + ' 00:00:00'
+        }
+        this.dataForm.starTime = starTime + ' 00:00:00'
+        this.getDataList()
+      },
       // 获取数据列表
-      getDataList () {
+      getDataList() {
         this.dataListLoading = true
         this.$http({
           url: this.$http.adornUrl('/wka/order/list'),
@@ -181,7 +256,9 @@
             'page': this.pageIndex,
             'limit': this.pageSize,
             'status': this.dataForm.status,
-            'key': this.dataForm.key
+            'key': this.dataForm.key,
+            'starTime': this.dataForm.starTime,
+            'endTime': this.dataForm.endTime
           })
         }).then(({data}) => {
           if (data && data.code === 0) {
@@ -195,30 +272,30 @@
         })
       },
       // 每页数
-      sizeChangeHandle (val) {
+      sizeChangeHandle(val) {
         this.pageSize = val
         this.pageIndex = 1
         this.getDataList()
       },
       // 当前页
-      currentChangeHandle (val) {
+      currentChangeHandle(val) {
         this.pageIndex = val
         this.getDataList()
       },
       // 多选
-      selectionChangeHandle (val) {
+      selectionChangeHandle(val) {
         this.dataListSelections = val
       },
       // 新增 / 修改
-      addOrUpdateHandle (id) {
+      addOrUpdateHandle(id) {
         this.addOrUpdateVisible = true
         this.$nextTick(() => {
           this.$refs.addOrUpdate.init(id)
         })
       },
       // 修改订单状态
-      updateOrderHandle(id,status){
-        this.$confirm(`您确定要对该订单进行[${ status == 2 ? '确定' : '取消'}]操作?`, '提示', {
+      updateOrderHandle(id, status) {
+        this.$confirm(`您确定要对该订单进行[${status == 2 ? '确定' : '取消'}]操作?`, '提示', {
           confirmButtonText: '确定',
           cancelButtonText: '取消',
           type: 'warning'
@@ -244,6 +321,52 @@
               this.$message.error(data.msg)
             }
           })
+        })
+      },
+      // 导出Excel表格
+      exportExcel() {
+        // var exportXlsUrl = this.$http.adornUrl('/wka/order/exportExcel') +
+        //   '?fileName=设备列表' +
+        //   '&status=' + this.dataForm.status +
+        //   '&key=' + this.dataForm.key +
+        //   '&starTime=' + this.dataForm.starTime +
+        //   '&endTime=' + this.dataForm.endTime
+        // '&page=1&limit=10000'
+        // top.location.href = exportXlsUrl
+
+        this.$http({
+          url: this.$http.adornUrl('/wka/order/exportExcel'),
+          method: 'post',
+          params: this.$http.adornParams({
+            'fileName': '订单列表',
+            'page': 1,
+            'limit': 10000,
+            'status': this.dataForm.status,
+            'key': this.dataForm.key,
+            'starTime': this.dataForm.starTime,
+            'endTime': this.dataForm.endTime
+          }),
+          responseType: 'blob'
+        }).then(({res}) => {
+          console.log(res)
+          const link = document.createElement('a')
+          let blob = new Blob([res.data], {type: 'application/vnd.ms-excel'});
+          link.style.display = 'none'
+          link.href = URL.createObjectURL(blob);
+          let num = ''
+          for (let i = 0; i < 10; i++) {
+            num += Math.ceil(Math.random() * 10)
+          }
+          link.setAttribute('download', 'fileName' + num + '.xlsx')
+          document.body.appendChild(link)
+          link.click()
+          document.body.removeChild(link)
+        }).catch(error => {
+          this.$Notice.error({
+            title: '错误',
+            desc: '网络连接错误'
+          })
+          console.log(error)
         })
       },
       regFenToYuan(fen) {
@@ -273,7 +396,7 @@
         return s;
       },
       // 删除
-      deleteHandle (id) {
+      deleteHandle(id) {
         var ids = id ? [id] : this.dataListSelections.map(item => {
           return item.orderId
         })

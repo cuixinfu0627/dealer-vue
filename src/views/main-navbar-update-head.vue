@@ -67,7 +67,8 @@
       userAvatar: {
         get () {
           let avatar = this.$store.state.user.avatar
-          return this.$http.getFileUrl(avatar)
+          //return this.$http.getFileUrl(avatar)
+          return avatar
         },
         set (val) {
           this.$store.commit('user/updateAvatar', val)
