@@ -41,6 +41,7 @@
         prop="orderNum"
         header-align="center"
         align="center"
+        width="180px"
         label="订单号">
       </el-table-column>
       <el-table-column
@@ -104,7 +105,7 @@
         </template>
       </el-table-column>
       <el-table-column
-        prop="endTime"
+        prop="updateTime"
         header-align="center"
         align="center"
         width="160px"

@@ -23,13 +23,6 @@
         width="50">
       </el-table-column>
       <el-table-column
-        prop="dealerId"
-        header-align="center"
-        align="center"
-        label="商户id"
-        width="70">
-      </el-table-column>
-      <el-table-column
         prop="origin"
         header-align="center"
         align="center"

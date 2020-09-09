@@ -25,7 +25,7 @@
             <div slot="header">
               <h3 class="text-info">今日订单数量<i class="el-icon-s-cooperation"/></h3>
             </div>
-            <h1 class="h1 text-primary">{{statisticInfo.todayOrder}} 元</h1>
+            <h1 class="h1 text-primary">{{statisticInfo.todayOrder}} 个</h1>
           </el-card>
         </el-col>
         <el-col :xs="12" :sm="12" :md="4">
@@ -33,7 +33,7 @@
             <div slot="header">
               <h3 class="text-info">累计订单数量<i class="el-icon-s-opportunity"/></h3>
             </div>
-            <h1 class="h1 text-success">{{statisticInfo.totalOrder}} 元</h1>
+            <h1 class="h1 text-success">{{statisticInfo.totalOrder}} 个</h1>
           </el-card>
         </el-col>
         <el-col :xs="12" :sm="12" :md="4">

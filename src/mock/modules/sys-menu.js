@@ -57,7 +57,7 @@ var dataList = [
     'parentId': 1,
     'parentName': '系统管理',
     'name': 'SQL监控',
-    'url': 'http://api.live.xingfu999.com/renren-fast/druid/sql.html',
+    'url': 'http://api.live.xingfu999.com/druid/sql.html',
     'perms': null,
     'type': 1,
     'icon': 'sql',
