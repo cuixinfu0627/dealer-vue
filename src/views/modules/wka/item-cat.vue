@@ -30,23 +30,6 @@
         label="分类名称">
       </el-table-column>
       <el-table-column
-        prop="parentName"
-        header-align="center"
-        align="center"
-        width="120"
-        label="上级分类">
-      </el-table-column>
-      <el-table-column
-        prop="isParent"
-        header-align="center"
-        align="center"
-        label="是否为父分类">
-        <template slot-scope="scope">
-          <el-tag v-if="scope.row.isParent === 1" size="small">是</el-tag>
-          <el-tag v-else size="small">否</el-tag>
-        </template>
-      </el-table-column>
-      <el-table-column
         prop="sortOrder"
         header-align="center"
         align="center"
@@ -123,20 +106,20 @@
       getDataList () {
         this.dataListLoading = true
         this.$http({
-          //url: this.$http.adornUrl('/wka/item-cat/list'),
-          url: this.$http.adornUrl('/wka/item-cat/listTree'),
+          url: this.$http.adornUrl('/wka/item-cat/list'),
+          //url: this.$http.adornUrl('/wka/item-cat/listTree'),
           method: 'get',
-          params: this.$http.adornParams()
-          // params: this.$http.adornParams({
-          //   'page': this.pageIndex,
-          //   'limit': this.pageSize,
-          //   'key': this.dataForm.key
-          // })
+          //params: this.$http.adornParams()
+          params: this.$http.adornParams({
+            'page': this.pageIndex,
+            'limit': this.pageSize,
+            'key': this.dataForm.key
+          })
         }).then(({data}) => {
           if (data && data.code === 0) {
-            this.dataList = treeDataTranslate(data.data, 'id')
-            // this.dataList = data.page.list
-            // this.totalPage = data.page.totalCount
+            //this.dataList = treeDataTranslate(data.data, 'id')
+            this.dataList = data.page.list
+            this.totalPage = data.page.totalCount
           } else {
             this.dataList = []
             this.totalPage = 0

@@ -3,27 +3,28 @@
     :title="!dataForm.id ? '订单详情' : '订单详情'"
     :close-on-click-modal="false"
     :visible.sync="visible">
-    <el-form :model="dataForm" :rules="dataRule" ref="dataForm" @keyup.enter.native="dataFormSubmit()" label-width="100px">
+    <el-form :model="dataForm" :rules="dataRule" ref="dataForm" @keyup.enter.native="dataFormSubmit()"
+             label-width="100px">
       <el-card shadow="never" class="margin-top-10">
         <el-row>
           <el-col :span="6">
             <el-form-item label="订单号：">
-              <el-tag effect="dark">  {{ dataForm.orderNum }}  </el-tag>
+              <el-tag effect="dark"> {{ dataForm.orderNum }}</el-tag>
             </el-form-item>
           </el-col>
           <el-col :span="6">
             <el-form-item label="实付金额：">
-              <el-tag effect="dark">  {{ regFenToYuan(dataForm.payment) }} 元</el-tag>
+              <el-tag effect="dark"> {{ regFenToYuan(dataForm.payment) }} 元</el-tag>
             </el-form-item>
           </el-col>
           <el-col :span="6">
             <el-form-item label="用户：">
-              <el-tag effect="dark">  {{ dataForm.username }}  </el-tag>
+              <el-tag effect="dark"> {{ dataForm.username }}</el-tag>
             </el-form-item>
           </el-col>
           <el-col :span="6">
             <el-form-item label="用户标签：">
-              <el-tag effect="dark">  {{ dataForm.userTag }}  </el-tag>
+              <el-tag effect="dark"> {{ dataForm.userTag }}</el-tag>
             </el-form-item>
           </el-col>
         </el-row>
@@ -31,43 +32,44 @@
         <el-row>
           <el-col :span="6">
             <el-form-item label="买家昵称：">
-              <el-tag effect="dark">  {{ dataForm.buyerNick }}  </el-tag>
+              <el-tag effect="dark"> {{ dataForm.buyerNick }}</el-tag>
             </el-form-item>
           </el-col>
           <el-col :span="6">
             <el-form-item label="联系电话：">
-              <el-tag effect="dark">  {{ dataForm.mobile }}  </el-tag>
+              <el-tag effect="dark"> {{ dataForm.mobile }}</el-tag>
             </el-form-item>
           </el-col>
           <el-col :span="6">
             <el-form-item label="配送地址：">
-              <el-tag effect="dark">  {{ dataForm.shippingAddress }}  </el-tag>
+              <el-tag effect="dark"> {{ dataForm.shippingAddress }}</el-tag>
             </el-form-item>
           </el-col>
           <el-col :span="6">
             <el-form-item label="买家留言：">
-              <el-tag effect="dark">  {{ dataForm.buyerMessage }}  </el-tag>
+              <el-tag effect="dark"> {{ dataForm.buyerMessage }}</el-tag>
             </el-form-item>
           </el-col>
-      </el-row>
-      <el-divider content-position="left" class="divider-show"></el-divider>
-      <el-row>
-        <el-col :span="12">
-          <el-form-item label="创建时间：">
-            <el-tag effect="dark">  {{ dataForm.createTime }}  </el-tag>
-          </el-form-item>
-        </el-col>
-        <el-col :span="12">
-          <el-form-item label="订单状态：">
-            <el-tag type="" v-if="dataForm.status===1">待确认</el-tag>
-            <el-tag type="success" v-else-if="dataForm.status===2">已确认</el-tag>
-            <el-tag type="danger" v-else-if="dataForm.status===3">已取消</el-tag>
-          </el-form-item>
-        </el-col>
-      </el-row>
+        </el-row>
+        <el-divider content-position="left" class="divider-show"></el-divider>
+        <el-row>
+          <el-col :span="12">
+            <el-form-item label="创建时间：">
+              <el-tag effect="dark"> {{ dataForm.createTime }}</el-tag>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="订单状态：">
+              <el-tag type="" v-if="dataForm.status===1">待确认</el-tag>
+              <el-tag type="success" v-else-if="dataForm.status===2">已确认</el-tag>
+              <el-tag type="danger" v-else-if="dataForm.status===3">已取消</el-tag>
+            </el-form-item>
+          </el-col>
+        </el-row>
       </el-card>
       <el-card class="box-card">
-        <el-table v-loading="tableLoading" border :data="orderItemList" height="calc(50vh - 100px)"  :row-class-name="tableRowClassName">
+        <el-table v-loading="tableLoading" border :data="orderItemList" height="calc(50vh - 100px)"
+                  :row-class-name="tableRowClassName">
           <el-table-column
             :index="indexMethod"
             prop="Serial_number"
@@ -104,6 +106,16 @@
             prop="totalFee"
             label="商品总金额">
           </el-table-column>
+          <el-table-column
+            fixed="right"
+            header-align="center"
+            align="center"
+            width="150"
+            label="操作">
+            <template slot-scope="scope">
+              <el-button type="text" size="small" @click="cancelOrderItemHandle(scope.row.id)">取消订单</el-button>
+            </template>
+          </el-table-column>
         </el-table>
       </el-card>
     </el-form>
@@ -112,7 +124,7 @@
 
 <script>
   export default {
-    data () {
+    data() {
       return {
         visible: false,
         dataForm: {
@@ -138,12 +150,12 @@
           buyerRate: ''
         },
         dataRule: {},
-        orderItemList:[],
+        orderItemList: [],
         tableLoading: true,
       }
     },
     methods: {
-      init (id) {
+      init(id) {
         this.dataForm.orderId = id || 0
         this.visible = true
         this.$nextTick(() => {
@@ -189,7 +201,7 @@
         return value + " 元"
       },
       // 列表序号规则逻辑
-      indexMethod (index) {
+      indexMethod(index) {
         return index + 1
       },
       tableRowClassName({row, rowIndex}) {
@@ -200,8 +212,37 @@
         }
         return '';
       },
+      // 修改订单状态
+      cancelOrderItemHandle(id) {
+        this.$confirm(`您确定要对该订单中的商品进行取消操作?`, '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+          this.$http({
+            url: this.$http.adornUrl('/wka/order/cancel'),
+            method: 'post',
+            data: this.$http.adornData({
+              'itemId': id
+            })
+          }).then(({data}) => {
+            if (data && data.code === 0) {
+              this.$message({
+                message: '操作成功',
+                type: 'success',
+                duration: 1500,
+                onClose: () => {
+                  this.init(this.dataForm.orderId)
+                }
+              })
+            } else {
+              this.$message.error(data.msg)
+            }
+          })
+        })
+      },
       // 表单提交
-      dataFormSubmit () {
+      dataFormSubmit() {
         onClose: () => {
           this.visible = false
           this.$emit('refreshDataList')

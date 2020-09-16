@@ -15,7 +15,7 @@
                       value-format="yyyy-MM-dd">
       </el-date-picker>
       <el-form-item>
-        <el-input v-model="dataForm.key" placeholder="请输入订单号" clearable></el-input>
+        <el-input v-model="dataForm.key" placeholder="请输入订单号或用户标签" clearable></el-input>
       </el-form-item>
       <el-form-item>
         <el-button @click="getDataList()">查询</el-button>

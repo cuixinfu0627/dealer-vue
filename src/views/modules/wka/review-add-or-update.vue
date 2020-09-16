@@ -16,12 +16,6 @@
       <el-form-item label="昵称:" prop="nickname">
         <span>{{dataForm.nickname}}</span>
       </el-form-item>
-      <el-form-item label="邮箱:" prop="email">
-        <span>{{dataForm.email}}</span>
-      </el-form-item>
-      <el-form-item label="手机号:" prop="mobile">
-        <span>{{dataForm.mobile}}</span>
-      </el-form-item>
       <el-form-item label="审核状态" prop="reviewStatus">
         <el-select v-model="dataForm.reviewStatus" filterable placeholder="审核状态">
           <el-option
@@ -68,8 +62,6 @@
           username: '',
           nickname: '',
           password: '',
-          email: '',
-          mobile: '',
           avatar: '',
           status: '',
           createTime: '',
@@ -103,8 +95,6 @@
                 this.dataForm.nickname = data.wkaDealer.nickname
                 this.dataForm.password = data.wkaDealer.password
                 this.dataForm.salt = data.wkaDealer.salt
-                this.dataForm.email = data.wkaDealer.email
-                this.dataForm.mobile = data.wkaDealer.mobile
                 this.dataForm.avatar = data.wkaDealer.avatar
                 this.dataForm.status = data.wkaDealer.status
                 this.dataForm.createTime = data.wkaDealer.createTime

@@ -15,12 +15,6 @@
       <el-form-item label="昵称" prop="nickname">
         <el-input v-model="dataForm.nickname" placeholder="昵称"></el-input>
       </el-form-item>
-      <el-form-item label="邮箱" prop="email">
-        <el-input v-model="dataForm.email" placeholder="邮箱"></el-input>
-      </el-form-item>
-      <el-form-item label="手机号" prop="mobile">
-        <el-input v-model="dataForm.mobile" placeholder="手机号"></el-input>
-      </el-form-item>
       <el-form-item label="用户标签" prop="tag">
         <el-input v-model="dataForm.tag" placeholder="用户标签,多个用逗号[,]分隔"></el-input>
       </el-form-item>
@@ -43,8 +37,6 @@
           nickname: '',
           password: '',
           salt: '',
-          email: '',
-          mobile: '',
           avatar: '',
           status: '',
           createTime: '',
@@ -67,12 +59,6 @@
           ],
           salt: [
             { required: true, message: '盐不能为空', trigger: 'blur' }
-          ],
-          email: [
-            { required: true, message: '邮箱不能为空', trigger: 'blur' }
-          ],
-          mobile: [
-            { required: true, message: '手机号不能为空', trigger: 'blur' }
           ],
           avatar: [
             { required: true, message: '头像不能为空', trigger: 'blur' }
@@ -118,8 +104,6 @@
                 this.dataForm.nickname = data.wkaDealer.nickname
                 this.dataForm.password = data.wkaDealer.password
                 this.dataForm.salt = data.wkaDealer.salt
-                this.dataForm.email = data.wkaDealer.email
-                this.dataForm.mobile = data.wkaDealer.mobile
                 this.dataForm.avatar = data.wkaDealer.avatar
                 this.dataForm.status = data.wkaDealer.status
                 this.dataForm.createTime = data.wkaDealer.createTime
@@ -145,7 +129,6 @@
                 'id': this.dataForm.id || undefined,
                 'username': this.dataForm.username,
                 'nickname': this.dataForm.nickname,
-                'mobile': this.dataForm.mobile,
                 'avatar': this.dataForm.avatar,
                 'tag': this.dataForm.tag
               })
