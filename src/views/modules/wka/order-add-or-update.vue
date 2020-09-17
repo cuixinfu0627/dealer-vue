@@ -1,5 +1,5 @@
 <template>
-  <el-dialog
+  <el-dialog :append-to-body="true"
     :title="!dataForm.id ? '订单详情' : '订单详情'"
     :close-on-click-modal="false"
     :visible.sync="visible">
@@ -74,8 +74,7 @@
             :index="indexMethod"
             prop="Serial_number"
             sortable type="index"
-            label="序号"
-            width="60">
+            label="序号">
           </el-table-column>
           <el-table-column
             prop="picPath"
@@ -90,11 +89,25 @@
           </el-table-column>
           <el-table-column
             prop="title"
-            label="商品名称">
+            header-align="center"
+            align="center"
+            label="名称">
+            <template slot-scope="scope">
+              <el-popover
+                placement="top-start"
+                width="100"
+                trigger="hover"
+                :disabled="scope.row.title.length <= 10">
+                <div>{{ scope.row.title }}</div>
+                <span slot="reference" v-if="scope.row.title.length <= 10">{{scope.row.title}}</span>
+                <span slot="reference"
+                      v-if="scope.row.title.length > 10">{{scope.row.title.substr(0, 10) + "..."}}</span>
+              </el-popover>
+            </template>
           </el-table-column>
           <el-table-column
             prop="num"
-            label="商品数量">
+            label="数量">
           </el-table-column>
           <el-table-column
             prop="price"
@@ -106,23 +119,35 @@
             prop="totalFee"
             label="商品总金额">
           </el-table-column>
+          <el-table-column align="center" label="状态" width="100px">
+            <template slot-scope="scope">
+              <el-tag type="success" v-if="scope.row.status===1">正常</el-tag>
+              <el-tag type="danger" v-else-if="scope.row.status===2">已取消</el-tag>
+            </template>
+          </el-table-column>
           <el-table-column
             fixed="right"
             header-align="center"
             align="center"
-            width="150"
+            width="100"
             label="操作">
             <template slot-scope="scope">
-              <el-button type="text" size="small" @click="cancelOrderItemHandle(scope.row.id)">取消订单</el-button>
+              <el-button type="text" size="small" @click="cancelOrderItemHandle(scope.row.id)">取消</el-button>
+              <el-button type="text" size="small" @click="updateOrderItemHandle(scope.row.id)">修改</el-button>
             </template>
           </el-table-column>
         </el-table>
       </el-card>
     </el-form>
+    <!-- 弹窗, 新增 / 修改 -->
+    <add-or-update v-if="addOrUpdateVisible" ref="addOrUpdate"
+                   @refreshDataList="addOrUpdateReturnHandle"></add-or-update>
   </el-dialog>
 </template>
 
 <script>
+  import AddOrUpdate from "./order-item-add-or-update";
+
   export default {
     data() {
       return {
@@ -152,7 +177,11 @@
         dataRule: {},
         orderItemList: [],
         tableLoading: true,
+        addOrUpdateVisible: false,
       }
+    },
+    components: {
+      AddOrUpdate
     },
     methods: {
       init(id) {
@@ -223,7 +252,7 @@
             url: this.$http.adornUrl('/wka/order/cancel'),
             method: 'post',
             data: this.$http.adornData({
-              'itemId': id
+              'id': id
             })
           }).then(({data}) => {
             if (data && data.code === 0) {
@@ -232,7 +261,8 @@
                 type: 'success',
                 duration: 1500,
                 onClose: () => {
-                  this.init(this.dataForm.orderId)
+                  this.visible = false
+                  this.$emit('refreshDataList')
                 }
               })
             } else {
@@ -247,6 +277,20 @@
           this.visible = false
           this.$emit('refreshDataList')
         }
+      },
+      updateOrderItemHandle(id) {
+        // 修改商品订单
+        this.addOrUpdateVisible = true
+        this.$nextTick(() => {
+          this.$refs.addOrUpdate.init(id)
+        })
+      },
+      // 修改
+      addOrUpdateReturnHandle() {
+        this.addOrUpdateVisible = false
+        this.$nextTick(() => {
+          this.init(this.dataForm.orderId)
+        })
       },
       regFenToYuan(fen) {
         var num = fen;

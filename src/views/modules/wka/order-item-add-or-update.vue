@@ -4,17 +4,11 @@
     :close-on-click-modal="false"
     :visible.sync="visible">
     <el-form :model="dataForm" :rules="dataRule" ref="dataForm" @keyup.enter.native="dataFormSubmit()" label-width="80px">
-    <el-form-item label="商品id" prop="itemId">
-      <el-input v-model="dataForm.itemId" placeholder="商品id"></el-input>
-    </el-form-item>
-    <el-form-item label="订单id" prop="orderId">
-      <el-input v-model="dataForm.orderId" placeholder="订单id"></el-input>
-    </el-form-item>
-    <el-form-item label="商品购买数量" prop="num">
+      <el-form-item label="商品标题" prop="title">
+        <el-input v-model="dataForm.title" placeholder="商品标题"></el-input>
+      </el-form-item>
+    <el-form-item label="购买数量" prop="num">
       <el-input v-model="dataForm.num" placeholder="商品购买数量"></el-input>
-    </el-form-item>
-    <el-form-item label="商品标题" prop="title">
-      <el-input v-model="dataForm.title" placeholder="商品标题"></el-input>
     </el-form-item>
     <el-form-item label="商品单价" prop="price">
       <el-input v-model="dataForm.price" placeholder="商品单价"></el-input>
@@ -22,8 +16,10 @@
     <el-form-item label="商品总金额" prop="totalFee">
       <el-input v-model="dataForm.totalFee" placeholder="商品总金额"></el-input>
     </el-form-item>
-    <el-form-item label="商品图片地址" prop="picPath">
-      <el-input v-model="dataForm.picPath" placeholder="商品图片地址"></el-input>
+    <el-form-item label="商品图片" prop="picPath">
+      <div class="col-sm-3">
+        <el-image style="width: 100px; height: 50px" :src="dataForm.picPath" fit="contain"/>
+      </div>
     </el-form-item>
     </el-form>
     <span slot="footer" class="dialog-footer">
@@ -75,24 +71,27 @@
     },
     methods: {
       init (id) {
+        console.log("======================start=====================")
+        console.log(id)
+        console.log("======================end=====================")
         this.dataForm.id = id || 0
         this.visible = true
         this.$nextTick(() => {
           this.$refs['dataForm'].resetFields()
           if (this.dataForm.id) {
             this.$http({
-              url: this.$http.adornUrl(`/wka/order-goods/info/${this.dataForm.id}`),
+              url: this.$http.adornUrl(`/wka/order-item/info/${this.dataForm.id}`),
               method: 'get',
               params: this.$http.adornParams()
             }).then(({data}) => {
               if (data && data.code === 0) {
-                this.dataForm.itemId = data.wkaOrderGoods.itemId
-                this.dataForm.orderId = data.wkaOrderGoods.orderId
-                this.dataForm.num = data.wkaOrderGoods.num
-                this.dataForm.title = data.wkaOrderGoods.title
-                this.dataForm.price = data.wkaOrderGoods.price
-                this.dataForm.totalFee = data.wkaOrderGoods.totalFee
-                this.dataForm.picPath = data.wkaOrderGoods.picPath
+                this.dataForm.itemId = data.wkaOrderItem.itemId
+                this.dataForm.orderId = data.wkaOrderItem.orderId
+                this.dataForm.num = data.wkaOrderItem.num
+                this.dataForm.title = data.wkaOrderItem.title
+                this.dataForm.price = data.wkaOrderItem.price
+                this.dataForm.totalFee = data.wkaOrderItem.totalFee
+                this.dataForm.picPath = data.wkaOrderItem.picPath
               }
             })
           }

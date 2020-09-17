@@ -63,9 +63,9 @@
         align="center"
         label="接收用户">
         <template slot-scope="scope">
-          <el-tag type="success" v-if="scope.row.fromType===1">后台用户</el-tag>
-          <el-tag type="warning" v-else-if="scope.row.fromType===2">小程序用户</el-tag>
-          <el-tag type="danger" v-else-if="scope.row.fromType===3">所有人</el-tag>
+          <el-tag type="success" v-if="scope.row.groupType===1">后台用户</el-tag>
+          <el-tag type="warning" v-else-if="scope.row.groupType===2">小程序用户</el-tag>
+          <el-tag type="danger" v-else-if="scope.row.groupType===3">所有人</el-tag>
         </template>
       </el-table-column>
       <el-table-column

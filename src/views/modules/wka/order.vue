@@ -100,7 +100,7 @@
       <el-table-column align="center" label="状态" width="100px">
         <template slot-scope="scope">
           <el-tag type="" v-if="scope.row.status===1">待确认</el-tag>
-          <el-tag type="success" v-else-if="scope.row.status===2">已确认</el-tag>
+          <el-tag type="success" v-else-if="scope.row.status===2">已完成</el-tag>
           <el-tag type="danger" v-else-if="scope.row.status===3">已取消</el-tag>
         </template>
       </el-table-column>
@@ -326,49 +326,14 @@
       },
       // 导出Excel表格
       exportExcel() {
-        // var exportXlsUrl = this.$http.adornUrl('/wka/order/exportExcel') +
-        //   '?fileName=设备列表' +
-        //   '&status=' + this.dataForm.status +
-        //   '&key=' + this.dataForm.key +
-        //   '&starTime=' + this.dataForm.starTime +
-        //   '&endTime=' + this.dataForm.endTime
-        // '&page=1&limit=10000'
-        // top.location.href = exportXlsUrl
-
-        this.$http({
-          url: this.$http.adornUrl('/wka/order/exportExcel'),
-          method: 'post',
-          params: this.$http.adornParams({
-            'fileName': '订单列表',
-            'page': 1,
-            'limit': 10000,
-            'status': this.dataForm.status,
-            'key': this.dataForm.key,
-            'starTime': this.dataForm.starTime,
-            'endTime': this.dataForm.endTime
-          }),
-          responseType: 'blob'
-        }).then(({res}) => {
-          console.log(res)
-          const link = document.createElement('a')
-          let blob = new Blob([res.data], {type: 'application/vnd.ms-excel'});
-          link.style.display = 'none'
-          link.href = URL.createObjectURL(blob);
-          let num = ''
-          for (let i = 0; i < 10; i++) {
-            num += Math.ceil(Math.random() * 10)
-          }
-          link.setAttribute('download', 'fileName' + num + '.xlsx')
-          document.body.appendChild(link)
-          link.click()
-          document.body.removeChild(link)
-        }).catch(error => {
-          this.$Notice.error({
-            title: '错误',
-            desc: '网络连接错误'
-          })
-          console.log(error)
-        })
+        var exportXlsUrl = this.$http.adornUrl('/wka/order/exportExcel') +
+          '?fileName=订单列表' +
+          '&status=' + this.dataForm.status +
+          '&key=' + this.dataForm.key +
+          '&starTime=' + this.dataForm.starTime +
+          '&endTime=' + this.dataForm.endTime +
+          '&page=1&limit=10000'
+        top.location.href = exportXlsUrl
       },
       regFenToYuan(fen) {
         var num = fen;
