@@ -2,67 +2,39 @@
   <el-dialog :append-to-body="true"
     :title="!dataForm.id ? '订单详情' : '订单详情'"
     :close-on-click-modal="false"
+    width="70%"
     :visible.sync="visible">
-    <el-form :model="dataForm" :rules="dataRule" ref="dataForm" @keyup.enter.native="dataFormSubmit()"
-             label-width="100px">
+    <el-form :model="dataForm" :rules="dataRule" ref="dataForm" @keyup.enter.native="dataFormSubmit()" label-width="100px">
       <el-card shadow="never" class="margin-top-10">
         <el-row>
-          <el-col :span="6">
-            <el-form-item label="订单号：">
+          <el-col :span="8">
+            <el-form-item label="订单号码：">
               <el-tag effect="dark"> {{ dataForm.orderNum }}</el-tag>
             </el-form-item>
           </el-col>
-          <el-col :span="6">
+          <el-col :span="8">
             <el-form-item label="实付金额：">
               <el-tag effect="dark"> {{ regFenToYuan(dataForm.payment) }} 元</el-tag>
             </el-form-item>
           </el-col>
-          <el-col :span="6">
-            <el-form-item label="用户：">
-              <el-tag effect="dark"> {{ dataForm.username }}</el-tag>
-            </el-form-item>
-          </el-col>
-          <el-col :span="6">
-            <el-form-item label="用户标签：">
-              <el-tag effect="dark"> {{ dataForm.userTag }}</el-tag>
-            </el-form-item>
-          </el-col>
-        </el-row>
-        <el-divider content-position="left" class="divider-show"></el-divider>
-        <el-row>
-          <el-col :span="6">
+          <el-col :span="8">
             <el-form-item label="买家昵称：">
               <el-tag effect="dark"> {{ dataForm.buyerNick }}</el-tag>
             </el-form-item>
           </el-col>
-          <el-col :span="6">
+          <el-col :span="8">
+            <el-form-item label="用户标签：">
+              <el-tag effect="dark"> {{ dataForm.userTag }}</el-tag>
+            </el-form-item>
+          </el-col>
+          <el-col :span="8">
             <el-form-item label="联系电话：">
               <el-tag effect="dark"> {{ dataForm.mobile }}</el-tag>
             </el-form-item>
           </el-col>
-          <el-col :span="6">
+          <el-col :span="8">
             <el-form-item label="配送地址：">
               <el-tag effect="dark"> {{ dataForm.shippingAddress }}</el-tag>
-            </el-form-item>
-          </el-col>
-          <el-col :span="6">
-            <el-form-item label="买家留言：">
-              <el-tag effect="dark"> {{ dataForm.buyerMessage }}</el-tag>
-            </el-form-item>
-          </el-col>
-        </el-row>
-        <el-divider content-position="left" class="divider-show"></el-divider>
-        <el-row>
-          <el-col :span="12">
-            <el-form-item label="创建时间：">
-              <el-tag effect="dark"> {{ dataForm.createTime }}</el-tag>
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item label="订单状态：">
-              <el-tag type="" v-if="dataForm.status===1">待确认</el-tag>
-              <el-tag type="success" v-else-if="dataForm.status===2">已确认</el-tag>
-              <el-tag type="danger" v-else-if="dataForm.status===3">已取消</el-tag>
             </el-form-item>
           </el-col>
         </el-row>
@@ -74,6 +46,7 @@
             :index="indexMethod"
             prop="Serial_number"
             sortable type="index"
+            width="50"
             label="序号">
           </el-table-column>
           <el-table-column
@@ -129,11 +102,16 @@
             fixed="right"
             header-align="center"
             align="center"
-            width="100"
+            width="150"
             label="操作">
             <template slot-scope="scope">
-              <el-button type="text" size="small" @click="cancelOrderItemHandle(scope.row.id)">取消</el-button>
-              <el-button type="text" size="small" @click="updateOrderItemHandle(scope.row.id)">修改</el-button>
+              <template v-if="scope.row.status==1">
+                <el-button type="text" size="small" @click="cancelOrderItemHandle(scope.row.id)">取消</el-button>
+                <el-button type="text" size="small" @click="updateOrderItemHandle(scope.row.id)">修改</el-button>
+              </template>
+              <template v-if="scope.row.status==2">
+                <el-tag type="danger">已取消</el-tag>
+              </template>
             </template>
           </el-table-column>
         </el-table>

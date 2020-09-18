@@ -36,7 +36,7 @@
           </el-tooltip>
         </div>
       </el-form-item>
-      <el-form-item label="所属类目:" prop="parentId" :label-width="formLabelWidth">
+      <el-form-item label="所属类目:" prop="cid" :label-width="formLabelWidth">
         <el-select v-model="dataForm.cid" filterable placeholder="请选择所属类目，可搜索" size="medium" @change="onSelectType">
           <el-option v-for="item in itemsCatList" :key="item.id" :label="item.name" :value="item.id"></el-option>
         </el-select>
@@ -78,9 +78,10 @@
           costPrice: '',
           num: '',
           barcode: '',
-          image: 'http://img.testfc-dev.zhxf.ltd/sky/goods/goods.jpg',
+          image: 'http://file-dealer.cykonhy.com/sky/goods/default.jpg',
           cid: '',
           cname: '',
+          spec: '',
           status: '',
           describes: '',
           created: '',
@@ -95,15 +96,15 @@
           ],
           price: [
             {required: true, message: '商品价格，单位为：分不能为空', trigger: 'blur'},
-            {pattern: /^[1-9]+$/, message: '商品价格，单位为：分不能为空', trigger: 'change' }
           ],
           costPrice: [
             {required: true, message: '商品成本价格，单位为：分不能为空', trigger: 'blur'},
-            {pattern: /^[1-9]+$/, message: '商品成本价格，单位为：分不能为空', trigger: 'change' }
           ],
           num: [
             {required: true, message: '库存数量不能为空', trigger: 'blur'},
-            {pattern: /^[1-9]+$/, message: '库存数量不能为空', trigger: 'change' }
+          ],
+          spec: [
+            {required: true, message: '商品规格不能为空', trigger: 'blur'},
           ],
           image: [
             {required: true, message: '商品图片不能为空', trigger: 'blur'}
@@ -157,15 +158,15 @@
       },
       initItemCat() {
         this.$http({
-          url: this.$http.adornUrl(`/wka/item-cat/listParent`),
+          url: this.$http.adornUrl('/wka/item-cat/list'),
           method: 'get',
           params: this.$http.adornParams({
-            'parentId': '',
-            'isParent': 0,
+            'page': 1,
+            'limit': 10000
           })
         }).then(({data}) => {
           if (data && data.code === 0) {
-            this.itemsCatList = data.data
+            this.itemsCatList = data.page.list
           }
         })
       },

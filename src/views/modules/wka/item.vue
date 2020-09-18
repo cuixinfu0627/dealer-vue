@@ -15,23 +15,13 @@
       <el-form-item>
         <el-button @click="getDataList()">查询</el-button>
         <el-button v-if="isAuth('wka:item:save')" type="primary" @click="addOrUpdateHandle()">新增</el-button>
-        <el-button v-if="isAuth('wka:item:delete')" type="danger" @click="deleteHandle()"
-                   :disabled="dataListSelections.length <= 0">批量删除
-        </el-button>
       </el-form-item>
     </el-form>
     <el-table
       :data="dataList"
       border
       v-loading="dataListLoading"
-      @selection-change="selectionChangeHandle"
       style="width: 100%;">
-      <el-table-column
-        type="selection"
-        header-align="center"
-        align="center"
-        width="50">
-      </el-table-column>
       <el-table-column
         prop="title"
         header-align="center"
@@ -73,7 +63,8 @@
             :disabled="scope.row.sellPoint.length <= 15">
             <div>{{ scope.row.sellPoint }}</div>
             <span slot="reference" v-if="scope.row.sellPoint.length <= 15">{{scope.row.sellPoint}}</span>
-            <span slot="reference" v-if="scope.row.sellPoint.length > 15">{{scope.row.sellPoint.substr(0, 15) + "..."}}</span>
+            <span slot="reference"
+                  v-if="scope.row.sellPoint.length > 15">{{scope.row.sellPoint.substr(0, 15) + "..."}}</span>
           </el-popover>
         </template>
       </el-table-column>
@@ -113,9 +104,9 @@
       </el-table-column>
       <el-table-column label="状态">
         <template slot-scope="scope">
-          <el-tag type="success" v-if="scope.row.status===1">正常</el-tag>
-          <el-tag type="warning" v-else-if="scope.row.status===2">下架</el-tag>
-          <el-tag type="danger" v-else-if="scope.row.status===3">删除</el-tag>
+          <el-tag type="success" v-if="scope.row.status===1">已上架</el-tag>
+          <el-tag type="warning" v-else-if="scope.row.status===2">已下架</el-tag>
+          <el-tag type="danger" v-else-if="scope.row.status===3">已删除</el-tag>
         </template>
       </el-table-column>
       <el-table-column
@@ -132,6 +123,12 @@
         width="150"
         label="操作">
         <template slot-scope="scope">
+          <template v-if="scope.row.status==1">
+            <el-button type="text" size="small" @click="itemSoldOut(scope.row.id)">商品下架</el-button>
+          </template>
+          <template v-if="scope.row.status==2">
+            <el-button type="text" size="small" @click="itemPutaway(scope.row.id)">商品上架</el-button>
+          </template>
           <el-button type="text" size="small" @click="addOrUpdateHandle(scope.row.id)">修改</el-button>
           <el-button type="text" size="small" @click="deleteHandle(scope.row.id)">删除</el-button>
         </template>
@@ -162,13 +159,10 @@
           label: '全部状态'
         }, {
           status: '1',
-          label: '正常'
+          label: '已上架'
         }, {
           status: '2',
-          label: '下架'
-        }, {
-          status: '3',
-          label: '删除'
+          label: '已下架'
         }],
         dataForm: {
           status,
@@ -206,7 +200,7 @@
       getDataList() {
         this.dataListLoading = true
         this.$http({
-          url: this.$http.adornUrl('/wka/item/list'),
+          url: this.$http.adornUrl('/wka/item/listItem'),
           method: 'get',
           params: this.$http.adornParams({
             'page': this.pageIndex,
@@ -240,6 +234,66 @@
       selectionChangeHandle(val) {
         this.dataListSelections = val
       },
+      // 商品下架
+      itemSoldOut(id) {
+        this.$confirm(`确定要对该商品进行下架操作操作?`, '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+          this.$http({
+            url: this.$http.adornUrl('/wka/item/update'),
+            method: 'post',
+            data: this.$http.adornData({
+              'id': id,
+              'status': 2
+            })
+          }).then(({data}) => {
+            if (data && data.code === 0) {
+              this.$message({
+                message: '操作成功',
+                type: 'success',
+                duration: 1500,
+                onClose: () => {
+                  this.getDataList()
+                }
+              })
+            } else {
+              this.$message.error(data.msg)
+            }
+          })
+        })
+      },
+      // 商品重新上架
+      itemPutaway(id) {
+        this.$confirm(`确定要对该商品进行上架操作操作?`, '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+          this.$http({
+            url: this.$http.adornUrl('/wka/item/update'),
+            method: 'post',
+            data: this.$http.adornData({
+              'id': id,
+              'status': 1
+            })
+          }).then(({data}) => {
+            if (data && data.code === 0) {
+              this.$message({
+                message: '操作成功',
+                type: 'success',
+                duration: 1500,
+                onClose: () => {
+                  this.getDataList()
+                }
+              })
+            } else {
+              this.$message.error(data.msg)
+            }
+          })
+        })
+      },
       // 新增 / 修改
       addOrUpdateHandle(id) {
         this.addOrUpdateVisible = true
@@ -248,6 +302,36 @@
         })
       },
       // 删除
+      deleteHandle(id) {
+        this.$confirm(`确定要对该商品进行删除操作操作?`, '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+          this.$http({
+            url: this.$http.adornUrl('/wka/item/update'),
+            method: 'post',
+            data: this.$http.adornData({
+              'id': id,
+              'status': 3
+            })
+          }).then(({data}) => {
+            if (data && data.code === 0) {
+              this.$message({
+                message: '操作成功',
+                type: 'success',
+                duration: 1500,
+                onClose: () => {
+                  this.getDataList()
+                }
+              })
+            } else {
+              this.$message.error(data.msg)
+            }
+          })
+        })
+      },
+     /* // 删除
       deleteHandle(id) {
         var ids = id ? [id] : this.dataListSelections.map(item => {
           return item.id
@@ -276,7 +360,7 @@
             }
           })
         })
-      },
+      },*/
       regFenToYuan(fen) {
         var num = fen;
         num = fen * 0.01;

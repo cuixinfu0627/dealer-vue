@@ -26,7 +26,7 @@
         </el-menu-item>
         <el-menu-item index="4">
           <template slot="title">
-            <el-badge value="new">
+            <el-badge value="">
               <i class="el-icon-bell"></i>
             </el-badge>
           </template>
@@ -95,7 +95,7 @@
         get () {
           let userAvatar = this.$store.state.user.avatar
           return userAvatar
-          //return this.$http.getFileUrl(userAvatar) TODO cui
+          //return this.$http.getFileUrl(userAvatar)
         }
       }
     },
