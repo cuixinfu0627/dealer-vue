@@ -102,9 +102,9 @@
             fixed="right"
             header-align="center"
             align="center"
-            width="150"
+            width="200"
             label="操作">
-            <template slot-scope="scope">
+            <template slot-scope="scope" v-if="dataForm.status ==2">
               <template v-if="scope.row.status==1">
                 <el-button type="text" size="small" @click="cancelOrderItemHandle(scope.row.id)">取消</el-button>
                 <el-button type="text" size="small" @click="updateOrderItemHandle(scope.row.id)">修改</el-button>

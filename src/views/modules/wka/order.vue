@@ -113,7 +113,7 @@
         label="操作">
         <template slot-scope="scope">
           <el-button type="text" size="small" @click="addOrUpdateHandle(scope.row.id)">详情</el-button>
-          <template v-if="scope.row.status==1">
+            <template v-if="scope.row.status==1">
             <el-button type="text" small @click="updateOrderHandle(scope.row.id,2)">确定</el-button>
             <el-button type="text" small @click="updateOrderHandle(scope.row.id,3)">取消</el-button>
           </template>
