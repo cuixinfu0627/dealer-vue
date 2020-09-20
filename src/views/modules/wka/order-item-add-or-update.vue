@@ -3,18 +3,18 @@
     :title="!dataForm.id ? '新增' : '修改订单商品'"
     :close-on-click-modal="false"
     :visible.sync="visible">
-    <el-form :model="dataForm" :rules="dataRule" ref="dataForm" @keyup.enter.native="dataFormSubmit()" label-width="80px">
+    <el-form :model="dataForm" :rules="dataRule" ref="dataForm" @keyup.enter.native="dataFormSubmit()" label-width="150px">
       <el-form-item label="商品标题" prop="title">
         <el-input v-model="dataForm.title" placeholder="商品标题" :disabled="isDisabled" :label-width="formLabelWidth"></el-input>
       </el-form-item>
     <el-form-item label="购买数量" prop="num">
       <el-input v-model="dataForm.num" placeholder="商品购买数量" :label-width="formLabelWidth"></el-input>
     </el-form-item>
-    <el-form-item label="商品单价" prop="price">
-      <el-input v-model="dataForm.price" placeholder="商品单价" :disabled="isDisabled" :label-width="formLabelWidth"></el-input>
+    <el-form-item label="商品单价(单位分)" prop="price">
+      <el-input v-model="dataForm.price" placeholder="商品单价"  :label-width="formLabelWidth"></el-input>
     </el-form-item>
-    <el-form-item label="商品总价" prop="totalFee">
-      <el-input v-model="dataForm.totalFee" placeholder="商品总金额" :disabled="isDisabled" :label-width="formLabelWidth"></el-input>
+    <el-form-item label="商品总价(单位分)" prop="totalFee">
+      <el-input v-model="dataForm.totalFee" placeholder="商品总金额"  :label-width="formLabelWidth"></el-input>
     </el-form-item>
     <el-form-item label="商品图片" prop="picPath">
       <div class="col-sm-3">
@@ -88,8 +88,10 @@
                 this.dataForm.orderId = data.wkaOrderItem.orderId
                 this.dataForm.num = data.wkaOrderItem.num
                 this.dataForm.title = data.wkaOrderItem.title
-                this.dataForm.price = this.regFenToYuan(data.wkaOrderItem.price)
-                this.dataForm.totalFee = this.regFenToYuan(data.wkaOrderItem.totalFee)
+                this.dataForm.price = data.wkaOrderItem.price
+                this.dataForm.totalFee = data.wkaOrderItem.totalFee
+                //this.dataForm.price = this.regFenToYuan(data.wkaOrderItem.price)
+                //this.dataForm.totalFee = this.regFenToYuan(data.wkaOrderItem.totalFee)
                 this.dataForm.picPath = data.wkaOrderItem.picPath
               }
             })
@@ -109,8 +111,8 @@
                 'orderId': this.dataForm.orderId,
                 'num': this.dataForm.num,
                 'title': this.dataForm.title,
-                /* 'price': this.dataForm.price,
-                'totalFee': this.dataForm.totalFee,*/
+                'price': this.dataForm.price,
+                'totalFee': this.dataForm.totalFee,
                 'picPath': this.dataForm.picPath
               })
             }).then(({data}) => {
