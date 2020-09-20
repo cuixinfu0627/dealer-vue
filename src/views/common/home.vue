@@ -115,7 +115,7 @@
       <el-col :xs="24" :sm="24" :md="24" :lg="16" :xl="16">
         <el-card shadow="never" body-style="padding:0; overflow: hidden;">
           <h3 slot="header" class="text-gray"><i class="el-icon-bell font-size-20 margin-right-10"></i>最新消息
-            <router-link to="/sys-message-user" style="float:right;"><a type="primary">查看更多<i
+            <router-link to="/sys-message" style="float:right;"><a type="primary">查看更多<i
               class="el-icon-d-arrow-right"></i></a></router-link>
           </h3>
           <el-table :data="tableData" height="365">
@@ -155,12 +155,12 @@
           return true
         },
         statisticInfo: {
-          totaluser: 65543,
-          reviewUser: 1231,
-          totalOrder: 23651,
-          todayOrder: 654,
-          totalInterest: 54656,
-          todayInterest: 4132
+          totaluser: 0,
+          reviewUser: 0,
+          totalOrder: 0,
+          todayOrder: 0,
+          totalInterest: 0,
+          todayInterest: 0
         },
         sunnyImg: require("../../assets/img/weather/cloudy_128.png"),
         cloudyImg: require("../../assets/img/weather/cloudy_128.png"),

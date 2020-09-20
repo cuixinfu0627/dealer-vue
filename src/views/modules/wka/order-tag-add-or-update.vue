@@ -17,6 +17,11 @@
             <el-tag effect="dark"> {{ regFenToYuan(userTagForm.totalMoney) }} 元</el-tag>
           </el-form-item>
         </el-col>
+        <el-col :span="6">
+          <el-form-item>
+            <el-button type="success" round @click="exportExcel()">导出Excel</el-button>
+          </el-form-item>
+        </el-col>
       </el-row>
       <el-card class="box-card">
         <el-table :data="dataList" border v-loading="dataListLoading" height="calc(50vh - 100px)"
@@ -31,55 +36,47 @@
             </template>
           </el-table-column>
           <el-table-column
-            prop="orderNum"
+            prop="title"
             header-align="center"
             align="center"
             width="180px"
-            label="订单号">
+            label="商品名称">
           </el-table-column>
           <el-table-column
-            prop="payment"
+            prop="picPath"
+            header-align="center"
+            align="center"
+            label="图片">
+            <template slot-scope="scope">
+              <div class="col-sm-3">
+                <el-image style="width: 100px; height: 50px" :src="scope.row.picPath" fit="contain"/>
+              </div>
+            </template>
+          </el-table-column>
+          <el-table-column
+            prop="price"
             header-align="center"
             align="center"
             :formatter="handlderPrice"
-            label="实付金额">
+            label="商品单价">
           </el-table-column>
           <el-table-column
-            prop="username"
+            prop="num"
             header-align="center"
             align="center"
-            label="用户">
+            label="购买数量">
           </el-table-column>
           <el-table-column
-            prop="buyerNick"
+            prop="totalFee"
             header-align="center"
             align="center"
-            label="买家昵称">
-          </el-table-column>
-          <el-table-column
-            prop="mobile"
-            header-align="center"
-            align="center"
-            label="联系电话">
-          </el-table-column>
-          <el-table-column
-            prop="shippingAddress"
-            header-align="center"
-            align="center"
-            label="配送地址">
-          </el-table-column>
-          <el-table-column
-            prop="createTime"
-            header-align="center"
-            align="center"
-            width="160px"
-            label="创建时间">
+            :formatter="handlderTotalFee"
+            label="商品总价">
           </el-table-column>
           <el-table-column align="center" label="状态" width="100px">
             <template slot-scope="scope">
-              <el-tag type="" v-if="scope.row.status===1">待确认</el-tag>
-              <el-tag type="success" v-else-if="scope.row.status===2">已完成</el-tag>
-              <el-tag type="danger" v-else-if="scope.row.status===3">已取消</el-tag>
+              <el-tag type="success" v-if="scope.row.status===1">已确认</el-tag>
+              <el-tag type="danger" v-else-if="scope.row.status===2">已取消</el-tag>
             </template>
           </el-table-column>
         </el-table>
@@ -107,7 +104,7 @@
           order: '',
           userTag: '',
           totalMoney: '',
-          status,
+          status: '1',
           key: '',
           starTime: '',
           endTime: ''
@@ -126,24 +123,18 @@
       init(userTagObj) {
         this.userTagForm.userTag = userTagObj.userTag
         this.userTagForm.totalMoney = userTagObj.totalMoney
-        this.userTagForm.status = userTagObj.status
-        this.userTagForm.starTime = userTagObj.starTime
-        this.userTagForm.endTime = userTagObj.endTime
-
         this.visible = true
         this.$nextTick(() => {
           if (this.userTagForm.userTag) {
             this.dataListLoading = true
             this.$http({
-              url: this.$http.adornUrl('/wka/order/list'),
+              url: this.$http.adornUrl('/wka/order-tag/listByTag'),
               method: 'get',
               params: this.$http.adornParams({
                 'page': this.pageIndex,
                 'limit': this.pageSize,
-                'key': this.userTagForm.userTag,
-                'status': this.userTagForm.status,
-                'starTime': this.userTagForm.starTime,
-                'endTime': this.userTagForm.endTime
+                'userTag': this.userTagForm.userTag,
+                'status':this.userTagForm.status,
               })
             }).then(({data}) => {
               if (data && data.code === 0) {
@@ -157,6 +148,15 @@
             })
           }
         })
+      },
+      // 导出Excel表格
+      exportExcel() {
+        var exportXlsUrl = this.$http.adornUrl('/wka/order-tag/exportExcelByTag') +
+          '?fileName=标签汇总详情' +
+          '&userTag=' + this.userTagForm.userTag +
+          '&status=' + this.userTagForm.status +
+          '&page=1&limit=10000'
+        top.location.href = exportXlsUrl
       },
       // 每页数
       sizeChangeHandle(val) {

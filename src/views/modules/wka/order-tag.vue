@@ -9,19 +9,16 @@
           :value="item.status">
         </el-option>
       </el-select>
-      <el-date-picker size="medium" v-model="dateValue" type="daterange" class="margin-right-20" unlink-panels
-                      range-separator="至" start-placeholder="开始日期" end-placeholder="结束日期"
-                      :picker-options="pickerOptions" @change="chooseTimeRange" format="yyyy 年 MM 月 dd 日"
-                      value-format="yyyy-MM-dd">
-      </el-date-picker>
+      <!--<el-date-picker size="medium" v-model="dateValue" type="daterange" class="margin-right-20" unlink-panels
+                          range-separator="至" start-placeholder="开始日期" end-placeholder="结束日期"
+                          :picker-options="pickerOptions" @change="chooseTimeRange" format="yyyy 年 MM 月 dd 日"
+                          value-format="yyyy-MM-dd">
+          </el-date-picker>-->
       <el-form-item>
         <el-input v-model="dataForm.key" placeholder="请输入用户标签" clearable></el-input>
       </el-form-item>
       <el-form-item>
         <el-button @click="getDataList()">查询</el-button>
-      </el-form-item>
-      <el-form-item>
-        <el-button type="success" round @click="exportExcel()">导出Excel</el-button>
       </el-form-item>
     </el-form>
     <el-table
@@ -127,7 +124,7 @@
           ]
         },
         dataForm: {
-          status,
+          status:'2',
           key: '',
           starTime: '',
           endTime: ''
@@ -140,7 +137,7 @@
           order: '',
           userTag: '',
           totalMoney: '',
-          status,
+          status: '',
           key: '',
           starTime: '',
           endTime: ''
@@ -217,17 +214,6 @@
           this.userTagForm.endTime = this.dataForm.endTime
           this.$refs.addOrUpdate.init(this.userTagForm)
         })
-      },
-      // 导出Excel表格
-      exportExcel() {
-        var exportXlsUrl = this.$http.adornUrl('/wka/order-tag/exportExcel') +
-          '?fileName=订单标签汇总' +
-          '&status=' + this.dataForm.status +
-          '&key=' + this.dataForm.key +
-          '&starTime=' + this.dataForm.starTime +
-          '&endTime=' + this.dataForm.endTime +
-          '&page=1&limit=10000'
-        top.location.href = exportXlsUrl
       },
       regFenToYuan(fen) {
         var num = fen;
