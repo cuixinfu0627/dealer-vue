@@ -10,6 +10,9 @@
     <el-form-item label="购买数量" prop="num">
       <el-input v-model="dataForm.num" placeholder="商品购买数量" :label-width="formLabelWidth"></el-input>
     </el-form-item>
+      <el-form-item label="商品规格" prop="spec">
+        <el-input v-model="dataForm.spec" placeholder="商品规格" :disabled="isDisabled" :label-width="formLabelWidth"></el-input>
+      </el-form-item>
     <el-form-item label="商品单价(单位分)" prop="price">
       <el-input v-model="dataForm.price" placeholder="商品单价"  :label-width="formLabelWidth"></el-input>
     </el-form-item>
@@ -41,6 +44,7 @@
           itemId: '',
           orderId: '',
           num: '',
+          spec: '',
           title: '',
           price: '',
           totalFee: '',
@@ -87,6 +91,7 @@
                 this.dataForm.itemId = data.wkaOrderItem.itemId
                 this.dataForm.orderId = data.wkaOrderItem.orderId
                 this.dataForm.num = data.wkaOrderItem.num
+                this.dataForm.spec = data.wkaOrderItem.spec
                 this.dataForm.title = data.wkaOrderItem.title
                 this.dataForm.price = data.wkaOrderItem.price
                 this.dataForm.totalFee = data.wkaOrderItem.totalFee

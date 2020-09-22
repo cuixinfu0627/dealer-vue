@@ -80,6 +80,7 @@
           </el-table-column>
           <el-table-column
             prop="num"
+            :formatter="handlderNum"
             label="数量">
           </el-table-column>
           <el-table-column
@@ -202,6 +203,10 @@
       handlderPrice(row, column) {
         var value = this.regFenToYuan(row.price);
         return value + " 元"
+      },
+      handlderNum(row, column) {
+        var value = row.num +' ('+row.spec +')'
+        return value
       },
       handlderTotalFee(row, column) {
         var value = this.regFenToYuan(row.totalFee);

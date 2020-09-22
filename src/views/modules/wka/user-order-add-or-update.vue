@@ -70,6 +70,7 @@
             prop="num"
             header-align="center"
             align="center"
+            :formatter="handlderNum"
             label="数量">
           </el-table-column>
           <el-table-column
@@ -172,7 +173,10 @@
         this.pageIndex = val
         this.getDataList()
       },
-
+      handlderNum(row, column) {
+        var value = row.num +' ('+row.spec +')'
+        return value
+      },
       handlderPrice (row, column) {
         var value = this.regFenToYuan(row.price)
         return value + ' 元'
