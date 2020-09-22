@@ -1,23 +1,38 @@
 <template>
   <el-dialog :append-to-body="true"
-             title="标签详情"
+             title="用户订单详情"
              :close-on-click-modal="false"
              width="70%"
              :visible.sync="visible">
-    <el-form :model="userTagForm" :rules="dataRule" ref="dataForm" @keyup.enter.native="dataFormSubmit()"
+    <el-form :model="userOrderForm" :rules="dataRule" ref="dataForm" @keyup.enter.native="dataFormSubmit()"
              label-width="100px">
       <el-row>
-        <el-col :span="6">
-          <el-form-item label="标签：">
-            <el-tag effect="dark"> {{ userTagForm.userTag }}</el-tag>
+        <el-col :span="8">
+          <el-form-item label="客户名称：">
+            <el-tag effect="dark"> {{ userOrder.username }}</el-tag>
           </el-form-item>
         </el-col>
-        <el-col :span="6">
+        <el-col :span="8">
+          <el-form-item label="收货人：">
+            <el-tag effect="dark"> {{ userOrder.buyerNick }}</el-tag>
+          </el-form-item>
+        </el-col>
+        <el-col :span="8">
+          <el-form-item label="联系电话：">
+            <el-tag effect="dark"> {{ userOrder.mobile }}</el-tag>
+          </el-form-item>
+        </el-col>
+        <el-col :span="8">
+          <el-form-item label="收货地址：">
+            <el-tag effect="dark"> {{ userOrder.shippingAddress }}</el-tag>
+          </el-form-item>
+        </el-col>
+        <el-col :span="8">
           <el-form-item label="合计金额：">
-            <el-tag effect="dark"> {{ regFenToYuan(userTagForm.totalMoney) }} 元</el-tag>
+            <el-tag effect="dark"> {{ regFenToYuan(userOrder.payment) }} 元</el-tag>
           </el-form-item>
         </el-col>
-        <el-col :span="6">
+        <el-col :span="8">
           <el-form-item>
             <el-button type="success" round @click="exportExcel()">导出Excel</el-button>
           </el-form-item>
@@ -27,13 +42,11 @@
         <el-table :data="dataList" border v-loading="dataListLoading" height="calc(50vh - 100px)"
                   :row-class-name="tableRowClassName">
           <el-table-column
-            prop="userTag"
+            prop="nickname"
             header-align="center"
             align="center"
-            label="标签">
-            <template slot-scope="scope">
-              <el-tag :key="scope.row.tag" type="success">{{scope.row.userTag}}</el-tag>
-            </template>
+            width="180px"
+            label="客户名称">
           </el-table-column>
           <el-table-column
             prop="title"
@@ -54,17 +67,17 @@
             </template>
           </el-table-column>
           <el-table-column
+            prop="num"
+            header-align="center"
+            align="center"
+            label="数量">
+          </el-table-column>
+          <el-table-column
             prop="price"
             header-align="center"
             align="center"
             :formatter="handlderPrice"
             label="商品单价">
-          </el-table-column>
-          <el-table-column
-            prop="num"
-            header-align="center"
-            align="center"
-            label="购买数量">
           </el-table-column>
           <el-table-column
             prop="totalFee"
@@ -73,11 +86,11 @@
             :formatter="handlderTotalFee"
             label="商品总价">
           </el-table-column>
-          <el-table-column align="center" label="状态" width="100px">
-            <template slot-scope="scope">
-              <el-tag type="success" v-if="scope.row.status===1">已确认</el-tag>
-              <el-tag type="danger" v-else-if="scope.row.status===2">已取消</el-tag>
-            </template>
+          <el-table-column
+            prop="createTime"
+            header-align="center"
+            align="center"
+            label="创建日期">
           </el-table-column>
         </el-table>
         <el-pagination
@@ -100,14 +113,7 @@
     data () {
       return {
         visible: false,
-        userTagForm: {
-          order: '',
-          userTag: '',
-          totalMoney: '',
-          key: '',
-          starTime: '',
-          endTime: ''
-        },
+        userOrder: {},
         dataRule: {},
         dataList: [],
         pageIndex: 1,
@@ -116,27 +122,23 @@
         dataListLoading: false,
         dataListSelections: [],
         tableLoading: true,
+        userOrderForm: {},
       }
     },
     methods: {
-      init (userTagObj) {
-        this.userTagForm.starTime = userTagObj.starTime
-        this.userTagForm.endTime = userTagObj.endTime
-        this.userTagForm.userTag = userTagObj.userTag
-        this.userTagForm.totalMoney = userTagObj.totalMoney
+      init (userOrder) {
+        this.userOrder = userOrder
         this.visible = true
         this.$nextTick(() => {
-          if (this.userTagForm.userTag) {
+          if (this.userOrder.id) {
             this.dataListLoading = true
             this.$http({
-              url: this.$http.adornUrl('/wka/order-tag/listByTag'),
+              url: this.$http.adornUrl('/wka/user-order/info'),
               method: 'get',
               params: this.$http.adornParams({
                 'page': this.pageIndex,
                 'limit': this.pageSize,
-                'userTag': this.userTagForm.userTag,
-                'starTime': this.userTagForm.starTime,
-                'endTime': this.userTagForm.endTime,
+                'orderId': this.userOrder.id
               })
             }).then(({data}) => {
               if (data && data.code === 0) {
@@ -153,11 +155,9 @@
       },
       // 导出Excel表格
       exportExcel () {
-        var exportXlsUrl = this.$http.adornUrl('/wka/order-tag/exportExcelByTag') +
-          '?fileName=配货订单详情' +
-          '&userTag=' + this.userTagForm.userTag +
-          '&starTime=' + this.dataForm.starTime +
-          '&endTime=' + this.dataForm.endTime +
+        var exportXlsUrl = this.$http.adornUrl('/wka/user-order/exportExcel') +
+          '?fileName=配送订单详情' +
+          '&orderId=' + this.userOrder.id +
           '&page=1&limit=10000'
         top.location.href = exportXlsUrl
       },

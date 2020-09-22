@@ -1,28 +1,23 @@
 <template>
   <div class="mod-config">
     <el-form :inline="true" :model="dataForm" @keyup.enter.native="getDataList()">
-      <el-select v-model="dataForm.status" filterable placeholder="状态" @change="selectStatus">
-        <el-option
-          v-for="item in options"
-          :key="item.status"
-          :label="item.label"
-          :value="item.status">
-        </el-option>
-      </el-select>
       <el-date-picker size="medium" v-model="dateValue" type="daterange" class="margin-right-20" unlink-panels
                       range-separator="至" start-placeholder="开始日期" end-placeholder="结束日期"
                       :picker-options="pickerOptions" @change="chooseTimeRange" format="yyyy 年 MM 月 dd 日"
                       value-format="yyyy-MM-dd">
       </el-date-picker>
       <el-form-item>
-        <el-input v-model="dataForm.key" placeholder="请输入订单号或用户标签" clearable></el-input>
+        <el-input v-model="dataForm.key" placeholder="用户名搜索" clearable></el-input>
       </el-form-item>
+
       <el-form-item>
         <el-button @click="getDataList()">查询</el-button>
-            <el-button v-if="isAuth('wka:order:update')" type="danger" @click="confirmHandle()" :disabled="dataListSelections.length <= 0">批量确认</el-button>
-      </el-form-item>
-      <el-form-item>
-        <el-button type="success" round @click="exportExcel()">导出Excel</el-button>
+        <el-button v-if="isAuth('wka:user-order:save')" type="primary" @click="addOrUpdateHandle()">新增</el-button>
+        <el-form-item>
+          <el-button v-if="isAuth('wka:user-order:update')" type="success" round @click="batchExportExcel()"
+                     :disabled="dataListSelections.length <= 0">批量导出Excel
+          </el-button>
+        </el-form-item>
       </el-form-item>
     </el-form>
     <el-table
@@ -41,15 +36,7 @@
         prop="orderNum"
         header-align="center"
         align="center"
-        width="180px"
         label="订单号">
-      </el-table-column>
-      <el-table-column
-        prop="payment"
-        header-align="center"
-        align="center"
-        :formatter="handlderPrice"
-        label="实付金额">
       </el-table-column>
       <el-table-column
         prop="username"
@@ -58,19 +45,16 @@
         label="用户">
       </el-table-column>
       <el-table-column
-        prop="buyerNick"
-        header-align="center"
-        align="center"
-        label="买家昵称">
-      </el-table-column>
-      <el-table-column
         prop="userTag"
         header-align="center"
         align="center"
-        label="用户标签">
-        <template slot-scope="scope">
-          <el-tag :key="scope.row.tag" type="success">{{scope.row.userTag}}</el-tag>
-        </template>
+        label="标签">
+      </el-table-column>
+      <el-table-column
+        prop="buyerNick"
+        header-align="center"
+        align="center"
+        label="收货人">
       </el-table-column>
       <el-table-column
         prop="mobile"
@@ -85,18 +69,17 @@
         label="配送地址">
       </el-table-column>
       <el-table-column
+        prop="payment"
+        header-align="center"
+        align="center"
+        :formatter="handlderPrice"
+        label="实付金额">
+      </el-table-column>
+      <el-table-column
         prop="createTime"
         header-align="center"
         align="center"
-        width="160px"
         label="创建时间">
-      </el-table-column>
-      <el-table-column align="center" label="状态" width="100px">
-        <template slot-scope="scope">
-          <el-tag type="" v-if="scope.row.status===1">待确认</el-tag>
-          <el-tag type="success" v-else-if="scope.row.status===2">已完成</el-tag>
-          <el-tag type="danger" v-else-if="scope.row.status===3">已取消</el-tag>
-        </template>
       </el-table-column>
       <el-table-column
         fixed="right"
@@ -105,14 +88,7 @@
         width="150"
         label="操作">
         <template slot-scope="scope">
-          <el-button type="text" size="small" @click="addOrUpdateHandle(scope.row.id)">详情</el-button>
-            <template v-if="scope.row.status==1">
-            <el-button type="text" small @click="updateOrderHandle(scope.row.id,2)">确定</el-button>
-            <el-button type="text" small @click="updateOrderHandle(scope.row.id,3)">取消</el-button>
-          </template>
-          <template v-if="scope.row.status==2">
-            <el-button type="text" plain @click="updateOrderHandle(scope.row.id,3)">取消</el-button>
-          </template>
+          <el-button type="text" size="small" @click="addOrUpdateHandle(scope.row)">详情</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -131,36 +107,23 @@
 </template>
 
 <script>
-  import AddOrUpdate from './order-add-or-update'
+  import AddOrUpdate from './user-order-add-or-update'
 
   export default {
-    data() {
+    data () {
       return {
-        options: [{
-          status: '',
-          label: '全部状态'
-        }, {
-          status: '1',
-          label: '待确认'
-        }, {
-          status: '2',
-          label: '已确认'
-        }, {
-          status: '3',
-          label: '已取消'
-        }],
-        dateValue: '',
+        dateValue: [],
         pickerOptions: {
           shortcuts: [{
             text: '今日',
-            onClick(picker) {
+            onClick (picker) {
               const end = new Date()
               const begin = new Date()
               picker.$emit('pick', [begin, end])
             }
           }, {
             text: '最近一周',
-            onClick(picker) {
+            onClick (picker) {
               const end = new Date()
               const begin = new Date()
               begin.setTime(begin.getTime() - 3600 * 1000 * 24 * 7)
@@ -169,7 +132,7 @@
           },
             {
               text: '最近一个月',
-              onClick(picker) {
+              onClick (picker) {
                 const end = new Date()
                 const begin = new Date()
                 begin.setTime(begin.getTime() - 3600 * 1000 * 24 * 30)
@@ -178,7 +141,7 @@
             },
             {
               text: '最近三个月',
-              onClick(picker) {
+              onClick (picker) {
                 const end = new Date()
                 const begin = new Date()
                 begin.setTime(begin.getTime() - 3600 * 1000 * 24 * 90)
@@ -188,7 +151,6 @@
           ]
         },
         dataForm: {
-          status,
           key: '',
           starTime: '',
           endTime: ''
@@ -205,19 +167,15 @@
     components: {
       AddOrUpdate
     },
-    activated() {
-      this.getDataList()
+    activated () {
+      //this.getDataList()
+      //this.initDateTime()
+    },
+    mounted() {
+      this.initDateTime()
     },
     methods: {
-      selectStatus(value) {
-        this.dataForm.status = value
-        this.getDataList()
-      },
-      handlderPrice(row, column) {
-        var value = this.regFenToYuan(row.payment);
-        return value + " 元"
-      },
-      chooseTimeRange(t) {
+      chooseTimeRange (t) {
         if (t === null || t === '') {
           this.dataForm.starTime = ''
           this.dataForm.endTime = ''
@@ -234,16 +192,38 @@
         this.dataForm.starTime = starTime + ' 00:00:00'
         this.getDataList()
       },
+      initDateTime () {
+        //昨天的时间
+        var dateTime = new Date()
+        dateTime = dateTime.setDate(dateTime.getDate() - 1)
+        dateTime = new Date(dateTime)
+        var cuurentDate = this.formatDate(dateTime)
+        this.dataForm.starTime = cuurentDate + ' 00:00:00'
+        this.dataForm.endTime = cuurentDate + ' 23:59:00'
+        this.dateValue.push(this.dataForm.starTime)
+        this.dateValue.push(this.dataForm.endTime)
+        this.getDataList()
+      },
+      formatDate (date) {
+        var d = new Date(date),
+          month = '' + (d.getMonth() + 1),
+          day = '' + d.getDate(),
+          year = d.getFullYear()
+
+        if (month.length < 2) month = '0' + month
+        if (day.length < 2) day = '0' + day
+
+        return [year, month, day].join('-')
+      },
       // 获取数据列表
-      getDataList() {
+      getDataList () {
         this.dataListLoading = true
         this.$http({
-          url: this.$http.adornUrl('/wka/order/list'),
+          url: this.$http.adornUrl('/wka/user-order/list'),
           method: 'get',
           params: this.$http.adornParams({
             'page': this.pageIndex,
             'limit': this.pageSize,
-            'status': this.dataForm.status,
             'key': this.dataForm.key,
             'starTime': this.dataForm.starTime,
             'endTime': this.dataForm.endTime
@@ -260,108 +240,48 @@
         })
       },
       // 每页数
-      sizeChangeHandle(val) {
+      sizeChangeHandle (val) {
         this.pageSize = val
         this.pageIndex = 1
         this.getDataList()
       },
       // 当前页
-      currentChangeHandle(val) {
+      currentChangeHandle (val) {
         this.pageIndex = val
         this.getDataList()
       },
       // 多选
-      selectionChangeHandle(val) {
+      selectionChangeHandle (val) {
         this.dataListSelections = val
       },
       // 新增 / 修改
-      addOrUpdateHandle(id) {
+      addOrUpdateHandle (userOrder) {
         this.addOrUpdateVisible = true
         this.$nextTick(() => {
-          this.$refs.addOrUpdate.init(id)
+          this.$refs.addOrUpdate.init(userOrder)
         })
       },
-      // 修改订单状态
-      updateOrderHandle(id, status) {
-        this.$confirm(`您确定要对该订单进行[${status == 2 ? '确定' : '取消'}]操作?`, '提示', {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
-          type: 'warning'
-        }).then(() => {
-          this.$http({
-            url: this.$http.adornUrl('/wka/order/updateOrderStatus'),
-            method: 'post',
-            data: this.$http.adornData({
-              'id': id,
-              'status': status
-            })
-          }).then(({data}) => {
-            if (data && data.code === 0) {
-              this.$message({
-                message: '操作成功',
-                type: 'success',
-                duration: 1500,
-                onClose: () => {
-                  this.getDataList()
-                }
-              })
-            } else {
-              this.$message.error(data.msg)
-            }
-          })
-        })
-      },
-      // 导出Excel表格
-      exportExcel() {
-        var exportXlsUrl = this.$http.adornUrl('/wka/order/exportExcel') +
-          '?fileName=订单列表' +
-          '&status=' + this.dataForm.status +
-          '&key=' + this.dataForm.key +
-          '&starTime=' + this.dataForm.starTime +
-          '&endTime=' + this.dataForm.endTime +
-          '&page=1&limit=10000'
-        top.location.href = exportXlsUrl
-      },
-
-      confirmHandle(){
-        if (this.dataListSelections.length == 0){
+      // 批量导出Excel表格
+      batchExportExcel () {
+        if (this.dataListSelections.length == 0) {
           this.$message({
-            message: '请选择要确认的记录',
+            message: '请选择要批量导出标签记录',
             type: 'error',
             duration: 1000,
           })
-          return ;
+          return
         }
         var ids = this.dataListSelections.map(item => {
           return item.id
         })
-       this.$confirm(`确定要批量确认操作?`, '提示', {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
-          type: 'warning'
-        }).then(() => {
-          this.$http({
-            url: this.$http.adornUrl('/wka/order/bathConfirm'),
-            method: 'post',
-            data: this.$http.adornData(ids, false)
-          }).then(({data}) => {
-            if (data && data.code === 0) {
-              this.$message({
-                message: '操作成功',
-                type: 'success',
-                duration: 1500,
-                onClose: () => {
-                  this.getDataList()
-                }
-              })
-            } else {
-              this.$message.error(data.msg)
-            }
-          })
-        })
+        var exportXlsUrl = this.$http.adornUrl('/wka/user-order/batchExportExcel') +
+          '?fileName=配送订单详情' +
+          '&orderIds=' + ids
+        top.location.href = exportXlsUrl
       },
+
       // 删除
-      deleteHandle(id) {
+      deleteHandle (id) {
         var ids = id ? [id] : this.dataListSelections.map(item => {
           return item.id
         })
@@ -371,7 +291,7 @@
           type: 'warning'
         }).then(() => {
           this.$http({
-            url: this.$http.adornUrl('/wka/order/delete'),
+            url: this.$http.adornUrl('/wka/user-order/delete'),
             method: 'post',
             data: this.$http.adornData(ids, false)
           }).then(({data}) => {
@@ -390,31 +310,35 @@
           })
         })
       },
-      regFenToYuan(fen) {
-        var num = fen;
-        num = fen * 0.01;
-        num += '';
-        var reg = num.indexOf('.') > -1 ? /(\d{1,3})(?=(?:\d{3})+\.)/g : /(\d{1,3})(?=(?:\d{3})+$)/g;
-        num = num.replace(reg, '$1');
+      handlderPrice (row, column) {
+        var value = this.regFenToYuan(row.payment)
+        return value + ' 元'
+      },
+      regFenToYuan (fen) {
+        var num = fen
+        num = fen * 0.01
+        num += ''
+        var reg = num.indexOf('.') > -1 ? /(\d{1,3})(?=(?:\d{3})+\.)/g : /(\d{1,3})(?=(?:\d{3})+$)/g
+        num = num.replace(reg, '$1')
         num = this.toDecimal2(num)
         return num
       },
-      toDecimal2(x) {
-        var f = parseFloat(x);
+      toDecimal2 (x) {
+        var f = parseFloat(x)
         if (isNaN(f)) {
-          return false;
+          return false
         }
-        var f = Math.round(x * 100) / 100;
-        var s = f.toString();
-        var rs = s.indexOf('.');
+        var f = Math.round(x * 100) / 100
+        var s = f.toString()
+        var rs = s.indexOf('.')
         if (rs < 0) {
-          rs = s.length;
-          s += '.';
+          rs = s.length
+          s += '.'
         }
         while (s.length <= rs + 2) {
-          s += '0';
+          s += '0'
         }
-        return s;
+        return s
       },
     }
   }

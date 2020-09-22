@@ -1,24 +1,29 @@
 <template>
   <div class="mod-config">
     <el-form :inline="true" :model="dataForm" @keyup.enter.native="getDataList()">
-      <el-select v-model="dataForm.status" filterable placeholder="状态" @change="selectStatus">
-        <el-option
-          v-for="item in options"
-          :key="item.status"
-          :label="item.label"
-          :value="item.status">
-        </el-option>
-      </el-select>
-      <!--<el-date-picker size="medium" v-model="dateValue" type="daterange" class="margin-right-20" unlink-panels
-                          range-separator="至" start-placeholder="开始日期" end-placeholder="结束日期"
-                          :picker-options="pickerOptions" @change="chooseTimeRange" format="yyyy 年 MM 月 dd 日"
-                          value-format="yyyy-MM-dd">
-          </el-date-picker>-->
+<!--      <el-select v-model="dataForm.status" filterable placeholder="状态" @change="selectStatus">-->
+<!--        <el-option-->
+<!--          v-for="item in options"-->
+<!--          :key="item.status"-->
+<!--          :label="item.label"-->
+<!--          :value="item.status">-->
+<!--        </el-option>-->
+<!--      </el-select>-->
+      <el-date-picker size="medium" v-model="dateValue" type="daterange" class="margin-right-20" unlink-panels
+                      range-separator="至" start-placeholder="开始日期" end-placeholder="结束日期"
+                      :picker-options="pickerOptions" @change="chooseTimeRange" format="yyyy 年 MM 月 dd 日"
+                      value-format="yyyy-MM-dd">
+      </el-date-picker>
       <el-form-item>
         <el-input v-model="dataForm.key" placeholder="请输入用户标签" clearable></el-input>
       </el-form-item>
       <el-form-item>
         <el-button @click="getDataList()">查询</el-button>
+      </el-form-item>
+      <el-form-item>
+        <el-button v-if="isAuth('wka:order-tag:list')" type="success" round @click="batchExportExcel()"
+                   :disabled="dataListSelections.length <= 0">批量导出Excel
+        </el-button>
       </el-form-item>
     </el-form>
     <el-table
@@ -27,6 +32,12 @@
       v-loading="dataListLoading"
       @selection-change="selectionChangeHandle"
       style="width: 100%;">
+      <el-table-column
+        type="selection"
+        header-align="center"
+        align="center"
+        width="50">
+      </el-table-column>
       <el-table-column
         prop="order"
         header-align="center"
@@ -70,7 +81,7 @@
   import AddOrUpdate from './order-tag-add-or-update'
 
   export default {
-    data() {
+    data () {
       return {
         options: [{
           status: '',
@@ -85,18 +96,18 @@
           status: '3',
           label: '已取消'
         }],
-        dateValue: '',
+        dateValue: [],
         pickerOptions: {
           shortcuts: [{
             text: '今日',
-            onClick(picker) {
+            onClick (picker) {
               const end = new Date()
               const begin = new Date()
               picker.$emit('pick', [begin, end])
             }
           }, {
             text: '最近一周',
-            onClick(picker) {
+            onClick (picker) {
               const end = new Date()
               const begin = new Date()
               begin.setTime(begin.getTime() - 3600 * 1000 * 24 * 7)
@@ -105,7 +116,7 @@
           },
             {
               text: '最近一个月',
-              onClick(picker) {
+              onClick (picker) {
                 const end = new Date()
                 const begin = new Date()
                 begin.setTime(begin.getTime() - 3600 * 1000 * 24 * 30)
@@ -114,7 +125,7 @@
             },
             {
               text: '最近三个月',
-              onClick(picker) {
+              onClick (picker) {
                 const end = new Date()
                 const begin = new Date()
                 begin.setTime(begin.getTime() - 3600 * 1000 * 24 * 90)
@@ -124,7 +135,7 @@
           ]
         },
         dataForm: {
-          status:'2',
+          status: '2',
           key: '',
           starTime: '',
           endTime: ''
@@ -147,19 +158,46 @@
     components: {
       AddOrUpdate
     },
-    activated() {
-      this.getDataList()
+    activated () {
+      //this.getDataList()
+      //this.initDateTime()
+    },
+    mounted() {
+      this.initDateTime()
     },
     methods: {
-      selectStatus(value) {
+      initDateTime () {
+        //昨天的时间
+        var dateTime=new Date();
+        dateTime=dateTime.setDate(dateTime.getDate()-1);
+        dateTime=new Date(dateTime);
+        var cuurentDate = this.formatDate(dateTime)
+        this.dataForm.starTime = cuurentDate + ' 00:00:00'
+        this.dataForm.endTime = cuurentDate + ' 23:59:00'
+        this.dateValue.push(this.dataForm.starTime)
+        this.dateValue.push(this.dataForm.endTime)
+        this.getDataList()
+      },
+      formatDate(date) {
+        var d = new Date(date),
+          month = '' + (d.getMonth() + 1),
+          day = '' + d.getDate(),
+          year = d.getFullYear();
+
+        if (month.length < 2) month = '0' + month;
+        if (day.length < 2) day = '0' + day;
+
+        return [year, month, day].join('-');
+      },
+      selectStatus (value) {
         this.dataForm.status = value
         this.getDataList()
       },
-      handlderPrice(row, column) {
-        var value = this.regFenToYuan(row.totalMoney);
-        return value + " 元"
+      handlderPrice (row, column) {
+        var value = this.regFenToYuan(row.totalMoney)
+        return value + ' 元'
       },
-      chooseTimeRange(t) {
+      chooseTimeRange (t) {
         if (t === null || t === '') {
           this.dataForm.starTime = ''
           this.dataForm.endTime = ''
@@ -177,7 +215,7 @@
         this.getDataList()
       },
       // 获取数据列表
-      getDataList() {
+      getDataList () {
         this.dataListLoading = true
         this.$http({
           url: this.$http.adornUrl('/wka/order-tag/groupByTag'),
@@ -200,46 +238,65 @@
         })
       },
       // 多选
-      selectionChangeHandle(val) {
+      selectionChangeHandle (val) {
         this.dataListSelections = val
       },
       // 新增 / 修改
-      addOrUpdateHandle(orderTag) {
+      addOrUpdateHandle (orderTag) {
         this.addOrUpdateVisible = true
         this.$nextTick(() => {
           this.userTagForm.userTag = orderTag.userTag
           this.userTagForm.totalMoney = orderTag.totalMoney
-          this.userTagForm.status = this.dataForm.status
           this.userTagForm.starTime = this.dataForm.starTime
           this.userTagForm.endTime = this.dataForm.endTime
           this.$refs.addOrUpdate.init(this.userTagForm)
         })
       },
-      regFenToYuan(fen) {
-        var num = fen;
-        num = fen * 0.01;
-        num += '';
-        var reg = num.indexOf('.') > -1 ? /(\d{1,3})(?=(?:\d{3})+\.)/g : /(\d{1,3})(?=(?:\d{3})+$)/g;
-        num = num.replace(reg, '$1');
+      // 批量导出Excel表格
+      batchExportExcel () {
+        if (this.dataListSelections.length == 0) {
+          this.$message({
+            message: '请选择要批量导出标签记录',
+            type: 'error',
+            duration: 1000,
+          })
+          return
+        }
+        var userTags = this.dataListSelections.map(item => {
+          return item.userTag
+        })
+        var exportXlsUrl = this.$http.adornUrl('/wka/order-tag/batchExportExcelByTag') +
+          '?fileName=配货订单详情' +
+          '&starTime=' + this.dataForm.starTime +
+          '&endTime=' + this.dataForm.endTime +
+          '&userTags=' + userTags
+        top.location.href = exportXlsUrl
+      },
+      regFenToYuan (fen) {
+        var num = fen
+        num = fen * 0.01
+        num += ''
+        var reg = num.indexOf('.') > -1 ? /(\d{1,3})(?=(?:\d{3})+\.)/g : /(\d{1,3})(?=(?:\d{3})+$)/g
+        num = num.replace(reg, '$1')
         num = this.toDecimal2(num)
         return num
       },
-      toDecimal2(x) {
-        var f = parseFloat(x);
+      toDecimal2 (x) {
+        var f = parseFloat(x)
         if (isNaN(f)) {
-          return false;
+          return false
         }
-        var f = Math.round(x * 100) / 100;
-        var s = f.toString();
-        var rs = s.indexOf('.');
+        var f = Math.round(x * 100) / 100
+        var s = f.toString()
+        var rs = s.indexOf('.')
         if (rs < 0) {
-          rs = s.length;
-          s += '.';
+          rs = s.length
+          s += '.'
         }
         while (s.length <= rs + 2) {
-          s += '0';
+          s += '0'
         }
-        return s;
+        return s
       },
     }
   }
