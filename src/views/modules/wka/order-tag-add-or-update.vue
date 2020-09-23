@@ -154,11 +154,12 @@
       },
       // 导出Excel表格
       exportExcel () {
-        var exportXlsUrl = this.$http.adornUrl('/wka/order-tag/exportExcelByTag') +
+        var exportXlsUrl = this.$http.adornUrl('/wka/order-tag/exportExcel') +
           '?fileName=配货订单详情' +
           '&userTag=' + this.userTagForm.userTag +
-          '&starTime=' + this.dataForm.starTime +
-          '&endTime=' + this.dataForm.endTime +
+          '&starTime=' + this.userTagForm.starTime +
+          '&endTime=' + this.userTagForm.endTime +
+          '&totalMoney=' + this.userTagForm.totalMoney +
           '&page=1&limit=10000'
         top.location.href = exportXlsUrl
       },
