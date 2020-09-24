@@ -265,7 +265,7 @@
         var userTags = this.dataListSelections.map(item => {
           return item.userTag
         })
-        var exportXlsUrl = this.$http.adornUrl('/wka/order-tag/batchExportExcel') +
+        var exportXlsUrl = this.$http.adornUrl('/wka/export-order-tag/batchExportExcel') +
           '?fileName=配货订单详情' +
           '&starTime=' + this.dataForm.starTime +
           '&endTime=' + this.dataForm.endTime +

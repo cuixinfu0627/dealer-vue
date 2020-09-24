@@ -274,7 +274,7 @@
         var ids = this.dataListSelections.map(item => {
           return item.id
         })
-        var exportXlsUrl = this.$http.adornUrl('/wka/user-order/batchExportExcel') +
+        var exportXlsUrl = this.$http.adornUrl('/wka/export-order/batchExportExcel') +
           '?fileName=配送订单详情' +
           '&orderIds=' + ids
         top.location.href = exportXlsUrl
