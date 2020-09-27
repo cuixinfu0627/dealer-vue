@@ -276,7 +276,7 @@
         })
         var exportXlsUrl = this.$http.adornUrl('/wka/export-order/batchExportExcel') +
           '?fileName=配送订单详情' +
-          '&orderIds=' + ids
+          '&ids=' + ids
         top.location.href = exportXlsUrl
       },
 

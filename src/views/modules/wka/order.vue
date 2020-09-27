@@ -19,10 +19,16 @@
       </el-form-item>
       <el-form-item>
         <el-button @click="getDataList()">查询</el-button>
-            <el-button v-if="isAuth('wka:order:update')" type="danger" @click="confirmHandle()" :disabled="dataListSelections.length <= 0">批量确认</el-button>
       </el-form-item>
       <el-form-item>
-        <el-button type="success" round @click="exportExcel()">导出Excel</el-button>
+        <el-button v-if="isAuth('wka:order:update')" type="danger" round @click="confirmHandle()"
+                   :disabled="dataListSelections.length <= 0">批量确认
+        </el-button>
+      </el-form-item>
+      <el-form-item>
+        <el-button v-if="isAuth('wka:order:update')" type="success" round @click="exportExcel()"
+                   :disabled="dataListSelections.length <= 0">批量导出
+        </el-button>
       </el-form-item>
     </el-form>
     <el-table
@@ -106,7 +112,7 @@
         label="操作">
         <template slot-scope="scope">
           <el-button type="text" size="small" @click="addOrUpdateHandle(scope.row.id)">详情</el-button>
-            <template v-if="scope.row.status==1">
+          <template v-if="scope.row.status==1">
             <el-button type="text" small @click="updateOrderHandle(scope.row.id,2)">确定</el-button>
             <el-button type="text" small @click="updateOrderHandle(scope.row.id,3)">取消</el-button>
           </template>
@@ -134,7 +140,7 @@
   import AddOrUpdate from './order-add-or-update'
 
   export default {
-    data() {
+    data () {
       return {
         options: [{
           status: '',
@@ -153,14 +159,14 @@
         pickerOptions: {
           shortcuts: [{
             text: '今日',
-            onClick(picker) {
+            onClick (picker) {
               const end = new Date()
               const begin = new Date()
               picker.$emit('pick', [begin, end])
             }
           }, {
             text: '最近一周',
-            onClick(picker) {
+            onClick (picker) {
               const end = new Date()
               const begin = new Date()
               begin.setTime(begin.getTime() - 3600 * 1000 * 24 * 7)
@@ -169,7 +175,7 @@
           },
             {
               text: '最近一个月',
-              onClick(picker) {
+              onClick (picker) {
                 const end = new Date()
                 const begin = new Date()
                 begin.setTime(begin.getTime() - 3600 * 1000 * 24 * 30)
@@ -178,7 +184,7 @@
             },
             {
               text: '最近三个月',
-              onClick(picker) {
+              onClick (picker) {
                 const end = new Date()
                 const begin = new Date()
                 begin.setTime(begin.getTime() - 3600 * 1000 * 24 * 90)
@@ -205,19 +211,19 @@
     components: {
       AddOrUpdate
     },
-    activated() {
+    activated () {
       this.getDataList()
     },
     methods: {
-      selectStatus(value) {
+      selectStatus (value) {
         this.dataForm.status = value
         this.getDataList()
       },
-      handlderPrice(row, column) {
-        var value = this.regFenToYuan(row.payment);
-        return value + " 元"
+      handlderPrice (row, column) {
+        var value = this.regFenToYuan(row.payment)
+        return value + ' 元'
       },
-      chooseTimeRange(t) {
+      chooseTimeRange (t) {
         if (t === null || t === '') {
           this.dataForm.starTime = ''
           this.dataForm.endTime = ''
@@ -235,7 +241,7 @@
         this.getDataList()
       },
       // 获取数据列表
-      getDataList() {
+      getDataList () {
         this.dataListLoading = true
         this.$http({
           url: this.$http.adornUrl('/wka/order/list'),
@@ -260,29 +266,29 @@
         })
       },
       // 每页数
-      sizeChangeHandle(val) {
+      sizeChangeHandle (val) {
         this.pageSize = val
         this.pageIndex = 1
         this.getDataList()
       },
       // 当前页
-      currentChangeHandle(val) {
+      currentChangeHandle (val) {
         this.pageIndex = val
         this.getDataList()
       },
       // 多选
-      selectionChangeHandle(val) {
+      selectionChangeHandle (val) {
         this.dataListSelections = val
       },
       // 新增 / 修改
-      addOrUpdateHandle(id) {
+      addOrUpdateHandle (id) {
         this.addOrUpdateVisible = true
         this.$nextTick(() => {
           this.$refs.addOrUpdate.init(id)
         })
       },
       // 修改订单状态
-      updateOrderHandle(id, status) {
+      updateOrderHandle (id, status) {
         this.$confirm(`您确定要对该订单进行[${status == 2 ? '确定' : '取消'}]操作?`, '提示', {
           confirmButtonText: '确定',
           cancelButtonText: '取消',
@@ -312,30 +318,37 @@
         })
       },
       // 导出Excel表格
-      exportExcel() {
+      exportExcel () {
+        if (this.dataListSelections.length == 0) {
+          this.$message({
+            message: '请选择要导出的记录',
+            type: 'error',
+            duration: 1000,
+          })
+          return
+        }
+        var ids = this.dataListSelections.map(item => {
+          return item.id
+        })
         var exportXlsUrl = this.$http.adornUrl('/wka/order/exportExcel') +
           '?fileName=订单列表' +
-          '&status=' + this.dataForm.status +
-          '&key=' + this.dataForm.key +
-          '&starTime=' + this.dataForm.starTime +
-          '&endTime=' + this.dataForm.endTime +
-          '&page=1&limit=10000'
+          '&orderIds=' + ids
         top.location.href = exportXlsUrl
       },
 
-      confirmHandle(){
-        if (this.dataListSelections.length == 0){
+      confirmHandle () {
+        if (this.dataListSelections.length == 0) {
           this.$message({
             message: '请选择要确认的记录',
             type: 'error',
             duration: 1000,
           })
-          return ;
+          return
         }
         var ids = this.dataListSelections.map(item => {
           return item.id
         })
-       this.$confirm(`确定要批量确认操作?`, '提示', {
+        this.$confirm(`确定要批量确认操作?`, '提示', {
           confirmButtonText: '确定',
           cancelButtonText: '取消',
           type: 'warning'
@@ -361,7 +374,7 @@
         })
       },
       // 删除
-      deleteHandle(id) {
+      deleteHandle (id) {
         var ids = id ? [id] : this.dataListSelections.map(item => {
           return item.id
         })
@@ -390,31 +403,31 @@
           })
         })
       },
-      regFenToYuan(fen) {
-        var num = fen;
-        num = fen * 0.01;
-        num += '';
-        var reg = num.indexOf('.') > -1 ? /(\d{1,3})(?=(?:\d{3})+\.)/g : /(\d{1,3})(?=(?:\d{3})+$)/g;
-        num = num.replace(reg, '$1');
+      regFenToYuan (fen) {
+        var num = fen
+        num = fen * 0.01
+        num += ''
+        var reg = num.indexOf('.') > -1 ? /(\d{1,3})(?=(?:\d{3})+\.)/g : /(\d{1,3})(?=(?:\d{3})+$)/g
+        num = num.replace(reg, '$1')
         num = this.toDecimal2(num)
         return num
       },
-      toDecimal2(x) {
-        var f = parseFloat(x);
+      toDecimal2 (x) {
+        var f = parseFloat(x)
         if (isNaN(f)) {
-          return false;
+          return false
         }
-        var f = Math.round(x * 100) / 100;
-        var s = f.toString();
-        var rs = s.indexOf('.');
+        var f = Math.round(x * 100) / 100
+        var s = f.toString()
+        var rs = s.indexOf('.')
         if (rs < 0) {
-          rs = s.length;
-          s += '.';
+          rs = s.length
+          s += '.'
         }
         while (s.length <= rs + 2) {
-          s += '0';
+          s += '0'
         }
-        return s;
+        return s
       },
     }
   }
