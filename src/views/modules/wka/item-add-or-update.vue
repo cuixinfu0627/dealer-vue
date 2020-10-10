@@ -16,11 +16,11 @@
           v-model="dataForm.sellPoint">
         </el-input>
       </el-form-item>
-      <el-form-item label="商品零售价(分):" prop="price" :label-width="formLabelWidth">
-        <el-input v-model="dataForm.price" placeholder="商品价格，单位为：分"></el-input>
+      <el-form-item label="商品零售价:" prop="price" :label-width="formLabelWidth">
+        <el-input v-model="dataForm.price" placeholder="商品价格，单位为：元"></el-input>
       </el-form-item>
-      <el-form-item label="商品成本价(分):" prop="costPrice" :label-width="formLabelWidth">
-        <el-input v-model="dataForm.costPrice" placeholder="商品成本价价格，单位为：分"></el-input>
+      <el-form-item label="商品成本价:" prop="costPrice" :label-width="formLabelWidth">
+        <el-input v-model="dataForm.costPrice" placeholder="商品成本价价格，单位为：元"></el-input>
       </el-form-item>
       <el-form-item label="库存数量:" prop="num" :label-width="formLabelWidth">
         <el-input v-model="dataForm.num" placeholder="库存数量"></el-input>
@@ -124,7 +124,7 @@
       ItemUploadImage
     },
     methods: {
-      init(id) {
+      init (id) {
         this.dataForm.id = id || 0
         this.visible = true
         this.$nextTick(() => {
@@ -138,8 +138,8 @@
               if (data && data.code === 0) {
                 this.dataForm.title = data.wkaItem.title
                 this.dataForm.sellPoint = data.wkaItem.sellPoint
-                this.dataForm.price = data.wkaItem.price
-                this.dataForm.costPrice = data.wkaItem.costPrice
+                this.dataForm.price = this.regFenToYuan(data.wkaItem.price)
+                this.dataForm.costPrice = this.regFenToYuan(data.wkaItem.costPrice)
                 this.dataForm.num = data.wkaItem.num
                 this.dataForm.spec = data.wkaItem.spec
                 this.dataForm.barcode = data.wkaItem.barcode
@@ -156,7 +156,7 @@
         })
         this.initItemCat()
       },
-      initItemCat() {
+      initItemCat () {
         this.$http({
           url: this.$http.adornUrl('/wka/item-cat/list'),
           method: 'get',
@@ -171,28 +171,30 @@
         })
       },
       // 筛选类型
-      onSelectType(val) {
+      onSelectType (val) {
         let obj = this.itemsCatList.find((item) => {
           return item.id === val;
         });
         this.dataForm.cname = obj.name
       },
       // 上传文件
-      uploadHandle() {
+      uploadHandle () {
         this.uploadVisible = true
         this.$nextTick(() => {
           this.$refs.itemUploadImage.init()
         })
       },
       // 上传文件
-      refreshFileUrl(filePath) {
+      refreshFileUrl (filePath) {
         this.dataForm.image = filePath
         this.uploadVisible = false
       },
       // 表单提交
-      dataFormSubmit() {
+      dataFormSubmit () {
         this.$refs['dataForm'].validate((valid) => {
           if (valid) {
+            let itemPrice = this.regYuanToFen(this.dataForm.price,100)
+            let itemCostPrice = this.regYuanToFen(this.dataForm.costPrice,100)
             this.$http({
               url: this.$http.adornUrl(`/wka/item/${!this.dataForm.id ? 'save' : 'update'}`),
               method: 'post',
@@ -200,8 +202,8 @@
                 'id': this.dataForm.id || undefined,
                 'title': this.dataForm.title,
                 'sellPoint': this.dataForm.sellPoint,
-                'price': this.dataForm.price,
-                'costPrice': this.dataForm.costPrice,
+                'price': itemPrice,
+                'costPrice': itemCostPrice,
                 'num': this.dataForm.num,
                 'barcode': this.dataForm.barcode,
                 'image': this.dataForm.image,
@@ -231,6 +233,88 @@
           }
         })
       },
+      /**
+       * 分转化为元 - 正则解决精度
+       * @param fen
+       * @returns {boolean|string}
+       */
+      regFenToYuan (fen) {
+        var num = fen
+        num = fen * 0.01
+        num += ''
+        var reg = num.indexOf('.') > -1 ? /(\d{1,3})(?=(?:\d{3})+\.)/g : /(\d{1,3})(?=(?:\d{3})+$)/g
+        num = num.replace(reg, '$1')
+        num = this.toDecimal2(num)
+        return num
+      },
+      /**
+       * 元转分 - 解决精度问题 yuan:要转换的钱，单位元； digit：转换倍数
+       * @param yuan
+       * @param digit
+       * @returns {number}
+       */
+      regYuanToFen (yuan, digit) {
+        var m = 0,
+          s1 = yuan.toString(),
+          s2 = digit.toString();
+        try {
+          m += s1.split(".")[1].length
+        } catch (e) {
+        }
+        try {
+          m += s2.split(".")[1].length
+        } catch (e) {
+        }
+        return Number(s1.replace(".", "")) * Number(s2.replace(".", "")) / Math.pow(10, m)
+      },
+      toDecimal2 (x) {
+        var f = parseFloat(x)
+        if (isNaN(f)) {
+          return false
+        }
+        var f = Math.round(x * 100) / 100
+        var s = f.toString()
+        var rs = s.indexOf('.')
+        if (rs < 0) {
+          rs = s.length
+          s += '.'
+        }
+        while (s.length <= rs + 2) {
+          s += '0'
+        }
+        return s
+      },
+      /**
+       * 判断是否最多两位小数，正负均可
+       * @param inputNumber
+       * @returns {*|boolean}
+       */
+      checkTwoPointNum (inputNumber){
+        var partten = /^-?\d+\.?\d{0,2}$/;
+        return partten.test(inputNumber)
+      },
+      /**
+       * 强制保留2位小数，如：2，会在2后面补上00.即2.00
+       * @param x
+       * @returns {string|boolean}
+       */
+      toDecimal2 (x) {
+        var f = parseFloat(x);
+        if (isNaN(f)) {
+          return false;
+        }
+        var f = Math.round(x * 100) / 100;
+        var s = f.toString();
+        var rs = s.indexOf('.');
+        if (rs < 0) {
+          rs = s.length;
+          s += '.';
+        }
+        while (s.length <= rs + 2) {
+          s += '0';
+        }
+        return s;
+      }
     }
   }
 </script>

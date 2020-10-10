@@ -7,7 +7,7 @@
                       value-format="yyyy-MM-dd">
       </el-date-picker>
       <el-form-item>
-        <el-input v-model="dataForm.key" placeholder="用户名搜索" clearable></el-input>
+        <el-input v-model="dataForm.key" placeholder="用户标签搜索" clearable></el-input>
       </el-form-item>
 
       <el-form-item>
@@ -276,7 +276,7 @@
         })
         var exportXlsUrl = this.$http.adornUrl('/wka/export-order/batchExportExcel') +
           '?fileName=配送订单详情' +
-          '&ids=' + ids
+          '&orderIds=' + ids
         top.location.href = exportXlsUrl
       },
 
