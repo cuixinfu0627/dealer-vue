@@ -17,10 +17,10 @@
         </el-input>
       </el-form-item>
       <el-form-item label="商品零售价:" prop="price" :label-width="formLabelWidth">
-        <el-input v-model="dataForm.price" placeholder="商品价格，单位为：元"></el-input>
+        <el-input v-model="dataForm.price" placeholder="0.00，单位为：元"></el-input>
       </el-form-item>
       <el-form-item label="商品成本价:" prop="costPrice" :label-width="formLabelWidth">
-        <el-input v-model="dataForm.costPrice" placeholder="商品成本价价格，单位为：元"></el-input>
+        <el-input v-model="dataForm.costPrice" placeholder="0.00，单位为：元"></el-input>
       </el-form-item>
       <el-form-item label="库存数量:" prop="num" :label-width="formLabelWidth">
         <el-input v-model="dataForm.num" placeholder="库存数量"></el-input>

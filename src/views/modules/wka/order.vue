@@ -331,7 +331,7 @@
           return item.id
         })
         var exportXlsUrl = this.$http.adornUrl('/wka/order/exportExcel') +
-          '?fileName=订单列表' +
+          '?fileName=销售订单' +
           '&orderIds=' + ids
         top.location.href = exportXlsUrl
       },

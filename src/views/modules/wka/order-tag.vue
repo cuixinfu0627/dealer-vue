@@ -266,7 +266,7 @@
           return item.userTag
         })
         var exportXlsUrl = this.$http.adornUrl('/wka/export-order-tag/batchExportExcel') +
-          '?fileName=配货订单详情' +
+          '?fileName=配货订单' +
           '&starTime=' + this.dataForm.starTime +
           '&endTime=' + this.dataForm.endTime +
           '&userTags=' + userTags
