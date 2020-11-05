@@ -46,7 +46,7 @@
         label="图片">
         <template slot-scope="scope">
           <div class="col-sm-3">
-            <el-image style="width: 100px; height: 50px" :src="scope.row.image" fit="contain"/>
+            <el-image style="width: 100px; height: 80px" :src="scope.row.image" fit="contain" @click="handleZoomMagnifiedPics(scope.row.image)" :alt="scope.row.image"/>
           </div>
         </template>
       </el-table-column>
@@ -143,6 +143,10 @@
       :total="totalPage"
       layout="total, sizes, prev, pager, next, jumper">
     </el-pagination>
+    <!-- 弹窗, 图片放大 -->
+    <el-dialog :visible.sync="dialogVisible" center>
+      <img width="100%" :src="dialogImageUrl" alt="">
+    </el-dialog>
     <!-- 弹窗, 新增 / 修改 -->
     <add-or-update v-if="addOrUpdateVisible" ref="addOrUpdate" @refreshDataList="getDataList"></add-or-update>
   </div>
@@ -174,7 +178,9 @@
         totalPage: 0,
         dataListLoading: false,
         dataListSelections: [],
-        addOrUpdateVisible: false
+        addOrUpdateVisible: false,
+        dialogImageUrl: '',
+        dialogVisible: false,
       }
     },
     components: {
@@ -184,6 +190,10 @@
       this.getDataList()
     },
     methods: {
+      handleZoomMagnifiedPics (url) {
+        this.dialogImageUrl =  url
+        this.dialogVisible = true
+      },
       handlderPrice(row, column) {
         var value = this.regFenToYuan(row.price);
         return value + " 元"
