@@ -78,7 +78,7 @@
           costPrice: '',
           num: '',
           barcode: '',
-          image: 'https://zongyi2020.oss-cn-qingdao.aliyuncs.com/default.jpg',
+          image: 'http://file-cdn-gaobo.cykonhy.com/default.jpg',
           cid: '',
           cname: '',
           spec: '',

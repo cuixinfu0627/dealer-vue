@@ -1,5 +1,5 @@
 // 公共变量
-const uploadHeader = "http://api.dealer.cykonhy.com/sys/user/uploadAavatar";
+const uploadHeader = "http://api.gaobo.cykonhy.com/sys/user/uploadAavatar";
 
 // 默认图片地址:
 const headImgUrl = "http://wx.qlogo.cn/mmhead/NFTP6g88OibUZHkPI0KpQvtsnjYz3qQUYMlPAibM3LFqc/132";

@@ -85,7 +85,7 @@
             </template>
             <template>
               <el-form-item label="系统名称" key="系统名称">
-                <span>Live-管理系统</span>
+                <span>高波配送管理系统</span>
               </el-form-item>
             </template>
             <template>
