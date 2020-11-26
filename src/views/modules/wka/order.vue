@@ -232,12 +232,8 @@
         this.dateValue = t
         var starTime = this.dateValue[0]
         var endTime = this.dateValue[1]
-        if (starTime === endTime) {
-          this.dataForm.endTime = endTime + ' 23:59:00'
-        } else {
-          this.dataForm.endTime = endTime + ' 00:00:00'
-        }
         this.dataForm.starTime = starTime + ' 00:00:00'
+        this.dataForm.endTime = endTime + ' 23:59:00'
         this.getDataList()
       },
       // 获取数据列表
