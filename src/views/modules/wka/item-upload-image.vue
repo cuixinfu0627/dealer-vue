@@ -46,6 +46,11 @@
           this.$message.error('只支持jpg、png、gif格式的图片！')
           return false
         }
+        if(file.size > 1048576) {
+          this.$message.error('上传文件大小不能大于1M!')
+          this.loading = false
+          return false
+        }
         this.num++
       },
       // 上传成功

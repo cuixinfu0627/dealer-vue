@@ -26,7 +26,7 @@
     "gulp-shell": "0.6.5",
     "lodash": "4.17.5",
     "mapv": "^2.0.56",
-    "node-sass": "^4.12.0",
+    "node-sass": "^4.14.1",
     "npm": "^6.9.0",
     "sass-loader": "6.0.6",
     "screenfull": "^4.2.1",
