@@ -125,6 +125,9 @@
         this.userTagForm.endTime = userTagObj.endTime
         this.userTagForm.userTag = userTagObj.userTag
         this.userTagForm.totalMoney = userTagObj.totalMoney
+        this.loadOrderTagData()
+      },
+      loadOrderTagData(){
         this.visible = true
         this.$nextTick(() => {
           if (this.userTagForm.userTag) {
