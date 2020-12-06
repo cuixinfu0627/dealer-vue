@@ -125,6 +125,9 @@
         this.userTagForm.endTime = userTagObj.endTime
         this.userTagForm.userTag = userTagObj.userTag
         this.userTagForm.totalMoney = userTagObj.totalMoney
+        this.loadOrderTagData()
+      },
+      loadOrderTagData(){
         this.visible = true
         this.$nextTick(() => {
           if (this.userTagForm.userTag) {
@@ -167,12 +170,12 @@
       sizeChangeHandle (val) {
         this.pageSize = val
         this.pageIndex = 1
-        this.getDataList()
+        this.loadOrderTagData()
       },
       // 当前页
       currentChangeHandle (val) {
         this.pageIndex = val
-        this.getDataList()
+        this.loadOrderTagData()
       },
       handlderNum(row, column) {
         var value = row.num +' ('+row.spec +')'
