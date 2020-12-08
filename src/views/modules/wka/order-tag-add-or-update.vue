@@ -138,6 +138,7 @@
               params: this.$http.adornParams({
                 'page': this.pageIndex,
                 'limit': this.pageSize,
+                'status': '1',
                 'userTag': this.userTagForm.userTag,
                 'starTime': this.userTagForm.starTime,
                 'endTime': this.userTagForm.endTime,

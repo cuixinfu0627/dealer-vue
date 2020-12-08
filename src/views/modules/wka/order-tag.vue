@@ -265,7 +265,8 @@
           '?fileName=配货订单' +
           '&starTime=' + this.dataForm.starTime +
           '&endTime=' + this.dataForm.endTime +
-          '&userTags=' + userTags
+          '&userTags=' + userTags +
+          '&status=1'
         top.location.href = exportXlsUrl
       },
       regFenToYuan (fen) {
