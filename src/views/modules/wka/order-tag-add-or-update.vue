@@ -138,6 +138,7 @@
               params: this.$http.adornParams({
                 'page': this.pageIndex,
                 'limit': this.pageSize,
+                'status': '1',
                 'userTag': this.userTagForm.userTag,
                 'starTime': this.userTagForm.starTime,
                 'endTime': this.userTagForm.endTime,
@@ -170,12 +171,12 @@
       sizeChangeHandle (val) {
         this.pageSize = val
         this.pageIndex = 1
-        this.getDataList()
+        this.loadOrderTagData()
       },
       // 当前页
       currentChangeHandle (val) {
         this.pageIndex = val
-        this.getDataList()
+        this.loadOrderTagData()
       },
       handlderNum(row, column) {
         var value = row.num +' ('+row.spec +')'
