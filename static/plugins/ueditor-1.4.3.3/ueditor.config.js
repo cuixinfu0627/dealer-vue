@@ -31,7 +31,7 @@
 
         // 服务器统一请求接口路径
         //, serverUrl: URL + "jsp/controller.jsp"
-        , serverUrl: "http://api.dealer.cykonhy.com/ueditor/config?action=config&&noCache=1587007055434"
+        , serverUrl: "http://api.longma.cykonhy.com/ueditor/config?action=config&&noCache=1587007055434"
 
         //工具栏上的所有的功能按钮和下拉框，可以在new编辑器的实例时选择自己需要的重新定义
         , toolbars: [[
