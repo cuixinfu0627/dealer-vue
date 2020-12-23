@@ -5,7 +5,7 @@
   window.SITE_CONFIG = {};
 
   // api接口请求地址
-  window.SITE_CONFIG['baseUrl'] = 'http://api.longma.cykonhy.com';
+  window.SITE_CONFIG['baseUrl'] = 'https://api.longma.cykonhy.com';
 
   // img接口请求地址
   window.SITE_CONFIG['baseImg'] = 'http://q854zv8fy.bkt.clouddn.com/';
