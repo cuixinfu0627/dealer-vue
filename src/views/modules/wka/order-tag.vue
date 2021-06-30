@@ -12,7 +12,7 @@
       <el-date-picker size="medium" v-model="dateValue" type="daterange" class="margin-right-20" unlink-panels
                       range-separator="至" start-placeholder="开始日期" end-placeholder="结束日期"
                       :picker-options="pickerOptions" @change="chooseTimeRange" format="yyyy 年 MM 月 dd 日"
-                      value-format="yyyy-MM-dd">
+                      value-format="yyyy-MM-dd" disabled>
       </el-date-picker>
       <el-form-item>
         <el-input v-model="dataForm.key" placeholder="请输入用户标签" clearable></el-input>

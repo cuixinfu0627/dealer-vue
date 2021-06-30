@@ -5,7 +5,7 @@
   window.SITE_CONFIG = {};
 
   // api接口请求地址
-  window.SITE_CONFIG['baseUrl'] = 'http://api.dealer.cykonhy.com';
+  window.SITE_CONFIG['baseUrl'] = 'http://api.jiade.cykonhy.com';
 
   // img接口请求地址
   window.SITE_CONFIG['baseImg'] = 'http://q854zv8fy.bkt.clouddn.com/';
