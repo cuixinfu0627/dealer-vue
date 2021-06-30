@@ -97,6 +97,7 @@
           label: '已取消'
         }],
         dateValue: [],
+        cuurentSystemDate:'',
         pickerOptions: {
           shortcuts: [{
             text: '今日',
@@ -159,8 +160,7 @@
       AddOrUpdate
     },
     activated () {
-      //this.getDataList()
-      //this.initDateTime()
+      this.cuurentSystemDate = this.formatDate(new Date())
     },
     mounted() {
       this.initDateTime()
@@ -206,9 +206,23 @@
         this.dateValue = t
         var starTime = this.dateValue[0]
         var endTime = this.dateValue[1]
+        if(starTime === this.cuurentSystemDate){
+          this.$message({
+            message: '配送记录当天尚未统计不能查询！',
+            type: 'error',
+            duration: 1000,
+          })
+          return
+        }
+        if(endTime === this.cuurentSystemDate){
+          //当天的开始时间
+          this.dataForm.endTime = endTime + ' 00:00:000'
+        }else {
+          this.dataForm.endTime = endTime + ' 23:59:00'
+        }
         this.dataForm.starTime = starTime + ' 00:00:00'
-        this.dataForm.endTime = endTime + ' 23:59:00'
         this.getDataList()
+
       },
       // 获取数据列表
       getDataList () {
