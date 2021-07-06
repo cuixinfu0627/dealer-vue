@@ -47,7 +47,7 @@
         <el-col :xs="12" :sm="12" :md="4">
           <el-card shadow="never" @click.native="firmList('3')">
             <div slot="header">
-              <h3 class="text-info">总利润<i class="el-icon-s-data"/></h3>
+              <h3 class="text-info">总利润(不含当天)<i class="el-icon-s-data"/></h3>
             </div>
             <h1 class="h1 text-danger">{{regFenToYuan(statisticInfo.totalInterest)}} 元</h1>
           </el-card>
