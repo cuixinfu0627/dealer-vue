@@ -14,7 +14,7 @@ module.exports = {
     // 代理列表, 是否开启代理通过[./dev.env.js]配置
     proxyTable: devEnv.OPEN_PROXY === false ? {} : {
       '/proxyApi': {
-        target: 'https://api.jiade.cykonhy.com/',
+        target: 'https://api.yimei.cykonhy.com/',
         changeOrigin: true,
         pathRewrite: {
           '^/proxyApi': '/'
