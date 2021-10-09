@@ -2,7 +2,7 @@
   <div class="mod-demo-echarts">
     <div>
       <el-row :gutter="12" class="margin-bottom-20">
-        <el-col :xs="12" :sm="12" :md="4">
+        <el-col :xs="12" :sm="12" :md="6">
           <el-tooltip class="item" effect="light" content="点击查看审核用户列表" placement="top">
             <el-card shadow="never" @click.native="firmList('1')">
               <div slot="header">
@@ -12,7 +12,7 @@
             </el-card>
           </el-tooltip>
         </el-col>
-        <el-col :xs="12" :sm="12" :md="4">
+        <el-col :xs="12" :sm="12" :md="6">
           <el-card shadow="never" @click.native="firmList('2')">
             <div slot="header">
               <h3 class="text-info">未审核用户<i class="el-icon-s-help"/></h3>
@@ -20,7 +20,7 @@
             <h1 class="h1 text-black">{{statisticInfo.reviewUser}} 位</h1>
           </el-card>
         </el-col>
-        <el-col :xs="12" :sm="12" :md="4">
+        <el-col :xs="12" :sm="12" :md="6">
           <el-card shadow="never" @click.native="firmList('3')">
             <div slot="header">
               <h3 class="text-info">今日订单数量<i class="el-icon-s-cooperation"/></h3>
@@ -28,7 +28,7 @@
             <h1 class="h1 text-primary">{{statisticInfo.todayOrder}} 个</h1>
           </el-card>
         </el-col>
-        <el-col :xs="12" :sm="12" :md="4">
+        <el-col :xs="12" :sm="12" :md="6">
           <el-card shadow="never" @click.native="firmList('3')">
             <div slot="header">
               <h3 class="text-info">累计订单数量<i class="el-icon-s-opportunity"/></h3>
@@ -36,22 +36,22 @@
             <h1 class="h1 text-success">{{statisticInfo.totalOrder}} 个</h1>
           </el-card>
         </el-col>
-        <el-col :xs="12" :sm="12" :md="4">
-          <el-card shadow="never" @click.native="firmList('3')">
-            <div slot="header">
-              <h3 class="text-info">今日利润<i class="el-icon-s-flag"/></h3>
-            </div>
-            <h1 class="h1 text-warning">{{regFenToYuan(statisticInfo.todayInterest)}} 元</h1>
-          </el-card>
-        </el-col>
-        <el-col :xs="12" :sm="12" :md="4">
-          <el-card shadow="never" @click.native="firmList('3')">
-            <div slot="header">
-              <h3 class="text-info">总利润(不含当天)<i class="el-icon-s-data"/></h3>
-            </div>
-            <h1 class="h1 text-danger">{{regFenToYuan(statisticInfo.totalInterest)}} 元</h1>
-          </el-card>
-        </el-col>
+<!--        <el-col :xs="12" :sm="12" :md="4">-->
+<!--          <el-card shadow="never" @click.native="firmList('3')">-->
+<!--            <div slot="header">-->
+<!--              <h3 class="text-info">今日利润<i class="el-icon-s-flag"/></h3>-->
+<!--            </div>-->
+<!--            <h1 class="h1 text-warning">{{regFenToYuan(statisticInfo.todayInterest)}} 元</h1>-->
+<!--          </el-card>-->
+<!--        </el-col>-->
+<!--        <el-col :xs="12" :sm="12" :md="4">-->
+<!--          <el-card shadow="never" @click.native="firmList('3')">-->
+<!--            <div slot="header">-->
+<!--              <h3 class="text-info">总利润(不含当天)<i class="el-icon-s-data"/></h3>-->
+<!--            </div>-->
+<!--            <h1 class="h1 text-danger">{{regFenToYuan(statisticInfo.totalInterest)}} 元</h1>-->
+<!--          </el-card>-->
+<!--        </el-col>-->
       </el-row>
     </div>
     <!-- echarts图标展示 -->
