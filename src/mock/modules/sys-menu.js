@@ -57,7 +57,7 @@ var dataList = [
     'parentId': 1,
     'parentName': '系统管理',
     'name': 'SQL监控',
-    'url': 'https://api.dealer.cykonhy.com/druid/sql.html',
+    'url': 'https://api.yimei.cykonhy.com/druid/sql.html',
     'perms': null,
     'type': 1,
     'icon': 'sql',
