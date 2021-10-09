@@ -3,8 +3,8 @@
     <div class="site-content__wrapper">
       <div class="site-content">
         <div class="brand-info">
-          <h2 class="brand-info__text">宗亿食品订货平台</h2>
-          <p class="brand-info__intro">宗亿食品订货平台是在一定范围内实现综合网络百货零售商，是未来能够成为中国电子商务领域受消费者欢迎和具有影响力的电子商务物流百货网站之一，
+          <h2 class="brand-info__text">高波食品订货平台</h2>
+          <p class="brand-info__intro">高波食品订货平台是在一定范围内实现综合网络百货零售商，是未来能够成为中国电子商务领域受消费者欢迎和具有影响力的电子商务物流百货网站之一，
             在线销售家电、数码通讯、电脑、家居百货、服装服饰、母婴、图书、食品、在线旅游等多类数万个品牌百万种优质商品。同时在能够建立核心城市配送站。
             提供一套更优的同城配送解决方案。</p>
         </div>
